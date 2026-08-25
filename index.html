@@ -6127,9 +6127,372 @@ const healthTools = [
   { id: 'health-heartbeat', name: 'ضربان قلب', icon: '❤️', category: 'health', keywords: ['ضربان', 'قلب', 'pulse', 'heartbeat', 'BPM'], desc: 'شمارش ضربان قلب و نمایش ناحیه', render: renderHeartbeat },
   { id: 'health-bmi', name: 'BMI + BMR', icon: '⚖️', category: 'health', keywords: ['bmi', 'bmr', 'وزن', 'قد', 'کالری', 'متابولیسم'], desc: 'شاخص توده بدنی + متابولیسم پایه + کالری روزانه', render: renderHealthBmi },
   { id: 'health-childheight', name: 'قد بچه', icon: '👶', category: 'health', keywords: ['قد', 'بچه', 'کودک', 'height', 'child'], desc: 'پیشبینی قد بزرگسالی کودک', render: renderChildHeight },
+  { id: 'health-tdee', name: 'کالری روزانه (TDEE)', icon: '🔥', category: 'health', keywords: ['tdee', 'کالری', 'روزانه', 'متابولیسم', 'brm', 'diet', 'رژیم'], desc: 'محاسبه کالری مصرفی روزانه بر اساس فعالیت، وزن، قد و سن', render: renderTDEE },
+  { id: 'health-bodyfat', name: 'درصد چربی بدن', icon: '📏', category: 'health', keywords: ['چربی', 'بدن', 'body fat', 'درصد', 'bmi', 'نیروی دریایی'], desc: 'محاسبه درصد چربی بدن با فرمول نیروی دریایی آمریکا', render: renderBodyFat },
+  { id: 'health-macro', name: 'ماشین حساب ماکرو', icon: '🥗', category: 'health', keywords: ['ماکرو', 'پروتئین', 'کربوهیدرات', 'چربی', 'macro', 'protein', 'carbs'], desc: 'تقسیم کالری روزانه به پروتئین، کربوهیدرات و چربی', render: renderMacro },
+  { id: 'health-hiit', name: 'HIIT ۷ دقیقه', icon: '⏱️', category: 'health', keywords: ['hiit', 'تمرین', '۷دقیقه', 'ورزش', 'کاردیو', 'fitness'], desc: 'برنامه تمرین ۷ دقیقه‌ای HIIT با ۱۲ حرکت و تایمر صوتی', render: renderHiit },
 ];
 
 registerTools(healthTools);
+
+
+
+
+
+// ─── TDEE Calculator ───
+function renderTDEE(container) {
+  container.innerHTML = `
+    <div class="card">
+      <div class="input-group">
+        <label>جنسیت:</label>
+        <select id="tdee-gender">
+          <option value="male">مرد</option>
+          <option value="female">زن</option>
+        </select>
+      </div>
+      <div class="inline-inputs">
+        <div class="input-group">
+          <label>وزن (kg):</label>
+          <input type="number" id="tdee-weight" value="70" step="0.1" style="direction:ltr;text-align:right">
+        </div>
+        <div class="input-group">
+          <label>قد (cm):</label>
+          <input type="number" id="tdee-height" value="170" style="direction:ltr;text-align:right">
+        </div>
+      </div>
+      <div class="inline-inputs">
+        <div class="input-group">
+          <label>سن:</label>
+          <input type="number" id="tdee-age" value="25" style="direction:ltr;text-align:right">
+        </div>
+        <div class="input-group">
+          <label>سطح فعالیت:</label>
+          <select id="tdee-activity">
+            <option value="1.2">کم‌تحرک (کار اداری)</option>
+            <option value="1.375" selected>فعالیت سبک (۱-۳ روز)</option>
+            <option value="1.55">فعالیت متوسط (۳-۵ روز)</option>
+            <option value="1.725">فعال (۶-۷ روز)</option>
+            <option value="1.9">خیلی فعال (ورزشکار حرفه‌ای)</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" id="tdee-calc" style="width:100%">🔥 محاسبه</button>
+      <div id="tdee-result" class="result"></div>
+    </div>
+  `;
+  var el = container;
+  function calc() {
+    var gender = el.querySelector('#tdee-gender').value;
+    var weight = parseFloat(el.querySelector('#tdee-weight').value) || 0;
+    var height = parseFloat(el.querySelector('#tdee-height').value) || 0;
+    var age = parseInt(el.querySelector('#tdee-age').value) || 0;
+    var activity = parseFloat(el.querySelector('#tdee-activity').value);
+    var result = el.querySelector('#tdee-result');
+    if (weight <= 0 || height <= 0 || age <= 0) { result.classList.remove('show'); return; }
+    var bmr = gender === 'male'
+      ? 10 * weight + 6.25 * height - 5 * age + 5
+      : 10 * weight + 6.25 * height - 5 * age - 161;
+    var tdee = bmr * activity;
+    var cut = tdee - 500;
+    var bulk = tdee + 500;
+    result.innerHTML = `
+      <div class="row" style="border-bottom:2px solid var(--accent);padding-bottom:8px">
+        <span class="label">🔥 BMR (متابولیسم پایه):</span>
+        <span class="value" style="font-size:1.1rem">${Math.round(bmr).toLocaleString('fa-IR')} کالری</span>
+      </div>
+      <div class="row">
+        <span class="label">⚡ TDEE (کالری روزانه):</span>
+        <span class="value" style="font-size:1.2rem;color:var(--accent)">${Math.round(tdee).toLocaleString('fa-IR')} کالری</span>
+      </div>
+      <div class="row"><span class="label">📉 کاهش وزن:</span><span class="value" style="color:var(--danger)">${Math.round(cut).toLocaleString('fa-IR')} کالری</span></div>
+      <div class="row"><span class="label">📈 افزایش وزن:</span><span class="value" style="color:var(--success)">${Math.round(bulk).toLocaleString('fa-IR')} کالری</span></div>
+    `;
+    result.classList.add('show');
+  }
+  el.querySelector('#tdee-calc').onclick = calc;
+}
+
+// ─── Body Fat Calculator ───
+function renderBodyFat(container) {
+  container.innerHTML = `
+    <div class="card">
+      <div class="input-group">
+        <label>جنسیت:</label>
+        <select id="bf-gender">
+          <option value="male">مرد</option>
+          <option value="female">زن</option>
+        </select>
+      </div>
+      <div class="inline-inputs">
+        <div class="input-group">
+          <label>وزن (kg):</label>
+          <input type="number" id="bf-weight" value="70" step="0.1" style="direction:ltr;text-align:right">
+        </div>
+        <div class="input-group">
+          <label>قد (cm):</label>
+          <input type="number" id="bf-height" value="170" style="direction:ltr;text-align:right">
+        </div>
+      </div>
+      <div class="inline-inputs">
+        <div class="input-group">
+          <label>دور گردن (cm):</label>
+          <input type="number" id="bf-neck" value="37" step="0.1" style="direction:ltr;text-align:right">
+        </div>
+        <div class="input-group">
+          <label>دور کمر (cm):</label>
+          <input type="number" id="bf-waist" value="80" step="0.1" style="direction:ltr;text-align:right">
+        </div>
+      </div>
+      <div class="input-group" id="bf-hip-group" style="display:none">
+        <label>دور باسن (cm):</label>
+        <input type="number" id="bf-hip" value="95" step="0.1" style="direction:ltr;text-align:right">
+      </div>
+      <button class="btn btn-primary" id="bf-calc" style="width:100%">📏 محاسبه</button>
+      <div id="bf-result" class="result"></div>
+    </div>
+  `;
+  var el = container;
+  el.querySelector('#bf-gender').onchange = function() {
+    el.querySelector('#bf-hip-group').style.display = this.value === 'female' ? 'block' : 'none';
+  };
+  function calc() {
+    var gender = el.querySelector('#bf-gender').value;
+    var weight = parseFloat(el.querySelector('#bf-weight').value) || 0;
+    var height = parseFloat(el.querySelector('#bf-height').value) || 0;
+    var neck = parseFloat(el.querySelector('#bf-neck').value) || 0;
+    var waist = parseFloat(el.querySelector('#bf-waist').value) || 0;
+    var hip = parseFloat(el.querySelector('#bf-hip').value) || 0;
+    var result = el.querySelector('#bf-result');
+    if (weight <= 0 || height <= 0 || neck <= 0 || waist <= 0) { result.classList.remove('show'); return; }
+    var bf;
+    if (gender === 'male') {
+      bf = 86.010 * Math.log10(waist - neck) - 70.041 * Math.log10(height) + 36.76;
+    } else {
+      if (hip <= 0) { showToast('لطفاً دور باسن را وارد کنید'); return; }
+      bf = 163.205 * Math.log10(waist + hip - neck) - 97.684 * Math.log10(height) - 78.387;
+    }
+    bf = Math.max(2, Math.min(50, Math.round(bf * 10) / 10));
+    var fatMass = weight * bf / 100;
+    var leanMass = weight - fatMass;
+    var category;
+    if (gender === 'male') {
+      if (bf < 6) category = 'چربی ضروری (Essential)';
+      else if (bf < 14) category = 'ورزشکار (Athlete)';
+      else if (bf < 18) category = 'مناسب (Fitness)';
+      else if (bf < 25) category = 'متوسط (Average)';
+      else category = 'بالا (Obese)';
+    } else {
+      if (bf < 14) category = 'چربی ضروری (Essential)';
+      else if (bf < 21) category = 'ورزشکار (Athlete)';
+      else if (bf < 25) category = 'مناسب (Fitness)';
+      else if (bf < 32) category = 'متوسط (Average)';
+      else category = 'بالا (Obese)';
+    }
+    result.innerHTML = `
+      <div class="row" style="border-bottom:2px solid var(--accent);padding-bottom:8px">
+        <span class="label">📏 درصد چربی بدن:</span>
+        <span class="value" style="font-size:1.2rem;color:var(--accent)">% ${bf.toFixed(1)}</span>
+      </div>
+      <div class="row"><span class="label">⚖️ توده چربی:</span><span class="value">${fatMass.toFixed(1)} kg</span></div>
+      <div class="row"><span class="label">💪 توده بدون چربی:</span><span class="value">${leanMass.toFixed(1)} kg</span></div>
+      <div class="row"><span class="label">🏷️ دسته‌بندی:</span><span class="value" style="color:${bf < 25 ? 'var(--success)' : 'var(--danger)'}">${category}</span></div>
+      <div style="margin-top:8px;background:var(--glass);border-radius:8px;overflow:hidden;height:8px">
+        <div style="width:${Math.min(100, bf*2)}%;height:100%;background:linear-gradient(90deg,#00b894,#fdcb6e,#e17055);border-radius:8px"></div>
+      </div>
+    `;
+    result.classList.add('show');
+  }
+  el.querySelector('#bf-calc').onclick = calc;
+}
+
+// ─── Macro Calculator ───
+function renderMacro(container) {
+  container.innerHTML = `
+    <div class="card">
+      <div class="input-group">
+        <label>کالری روزانه:</label>
+        <input type="number" id="mc-cal" value="2200" style="direction:ltr;text-align:right;font-size:1.1rem" placeholder="مثلاً ۲۲۰۰">
+      </div>
+      <div class="input-group">
+        <label>هدف:</label>
+        <div class="chip-group">
+          <div class="chip active" data-mgoal="balanced">⚖️ متعادل</div>
+          <div class="chip" data-mgoal="cut">📉 کاهش وزن</div>
+          <div class="chip" data-mgoal="bulk">📈 عضله‌سازی</div>
+          <div class="chip" data-mgoal="keto">🥑 کتوژنیک</div>
+        </div>
+      </div>
+      <div class="inline-inputs">
+        <div class="input-group">
+          <label>وزن (kg):</label>
+          <input type="number" id="mc-weight" value="70" style="direction:ltr;text-align:right">
+        </div>
+        <div class="input-group">
+          <label>تعداد وعده:</label>
+          <select id="mc-meals">
+            <option value="3">۳ وعده</option>
+            <option value="4">۴ وعده</option>
+            <option value="5">۵ وعده</option>
+            <option value="6">۶ وعده</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" id="mc-calc" style="width:100%">🥗 محاسبه ماکرو</button>
+      <div id="mc-result" class="result"></div>
+    </div>
+  `;
+  var el = container;
+  var goal = 'balanced';
+  // Ratios: [protein%, carb%, fat%]
+  var ratios = { balanced: [30, 40, 30], cut: [40, 30, 30], bulk: [25, 50, 25], keto: [30, 5, 65] };
+  el.querySelectorAll('.chip').forEach(function(chip) {
+    chip.onclick = function() {
+      el.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('active'); });
+      this.classList.add('active');
+      goal = this.dataset.mgoal;
+    };
+  });
+  function calc() {
+    var calories = parseFloat(el.querySelector('#mc-cal').value) || 0;
+    var weight = parseFloat(el.querySelector('#mc-weight').value) || 0;
+    var meals = parseInt(el.querySelector('#mc-meals').value);
+    var result = el.querySelector('#mc-result');
+    if (calories <= 0) { result.classList.remove('show'); return; }
+    var r = ratios[goal];
+    var proteinCal = calories * r[0] / 100;
+    var carbCal = calories * r[1] / 100;
+    var fatCal = calories * r[2] / 100;
+    var proteinG = Math.round(proteinCal / 4);
+    var carbG = Math.round(carbCal / 4);
+    var fatG = Math.round(fatCal / 9);
+    var perMeal = function(g) { return Math.round(g / meals); };
+    result.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+        <div class="loan-box" style="border-color:rgba(108,92,231,.3)">
+          <div class="num" style="color:var(--accent)">${proteinG.toLocaleString('fa-IR')}g</div>
+          <div class="lbl">🍗 پروتئین</div>
+          <div style="font-size:.6rem;color:var(--text2)">${perMeal(proteinG).toLocaleString('fa-IR')}g/وعده</div>
+        </div>
+        <div class="loan-box" style="border-color:rgba(253,203,110,.4)">
+          <div class="num" style="color:var(--warning)">${carbG.toLocaleString('fa-IR')}g</div>
+          <div class="lbl">🍚 کربوهیدرات</div>
+          <div style="font-size:.6rem;color:var(--text2)">${perMeal(carbG).toLocaleString('fa-IR')}g/وعده</div>
+        </div>
+        <div class="loan-box" style="border-color:rgba(225,112,85,.3)">
+          <div class="num" style="color:var(--danger)">${fatG.toLocaleString('fa-IR')}g</div>
+          <div class="lbl">🧈 چربی</div>
+          <div style="font-size:.6rem;color:var(--text2)">${perMeal(fatG).toLocaleString('fa-IR')}g/وعده</div>
+        </div>
+      </div>
+      <div class="row" style="padding:8px 0">
+        <span class="label">🔥 کل کالری:</span>
+        <span class="value">${Math.round(calories).toLocaleString('fa-IR')} kcal</span>
+      </div>
+      <div class="row" style="padding:8px 0">
+        <span class="label">📊 نسبت:</span>
+        <span class="value">P ${r[0]}% / C ${r[1]}% / F ${r[2]}%</span>
+      </div>
+      <div class="row" style="padding:8px 0">
+        <span class="label">🍽️ ${meals.toLocaleString('fa-IR')} وعده:</span>
+        <span class="value">${perMeal(proteinG)}g پروتئین + ${perMeal(carbG)}g کربو + ${perMeal(fatG)}g چربی</span>
+      </div>
+      ${weight > 0 ? '<div class="row" style="padding:8px 0"><span class="label">💪 پروتئین به ازای وزن:</span><span class="value">' + (proteinG / weight).toFixed(1) + ' g/kg</span></div>' : ''}
+    `;
+    result.classList.add('show');
+  }
+  el.querySelector('#mc-calc').onclick = calc;
+}
+
+// ─── HIIT 7-Minute Timer ───
+function renderHiit(container) {
+  var exercises = [
+    { name: 'پرش پروانه', icon: '🤸' },
+    { name: 'اسکات با دیوار', icon: '🪑' },
+    { name: 'شنا', icon: '💪' },
+    { name: 'دراز نشست', icon: '🔄' },
+    { name: 'گام بلند', icon: '🚶' },
+    { name: 'پلانک', icon: '📏' },
+    { name: 'زانو بلند', icon: '🏃' },
+    { name: 'لانج', icon: '🦵' },
+    { name: 'شنا معکوس', icon: '🔙' },
+    { name: 'پلانک پهلو (راست)', icon: '↗️' },
+    { name: 'پلانک پهلو (چپ)', icon: '↖️' },
+    { name: 'حرکت کوهنورد', icon: '⛰️' },
+  ];
+  var workSec = 30, restSec = 10, totalRounds = 12;
+  var currentRound = 0, phase = 'ready', timeLeft = 0, interval = null, running = false;
+
+  function beep(freq, dur) {
+    try {
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      var osc = ctx.createOscillator(); var gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine'; osc.frequency.value = freq || 880; gain.gain.value = 0.3;
+      osc.start(); osc.stop(ctx.currentTime + (dur || 0.2));
+      setTimeout(function() { ctx.close(); }, (dur || 0.2) * 1000 + 200);
+    } catch(e) {}
+  }
+
+  function fmt(s) { return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }
+
+  function start() {
+    if (phase === 'ready' || phase === 'done') { currentRound = 1; phase = 'work'; timeLeft = workSec; beep(880, 0.3); }
+    running = true;
+    interval = setInterval(function() {
+      timeLeft--;
+      if (timeLeft <= 0) {
+        if (phase === 'work') {
+          beep(1200, 0.3);
+          if (currentRound >= totalRounds) { phase = 'done'; running = false; clearInterval(interval); beep(660, 0.1); setTimeout(function() { beep(880, 0.1); }, 150); setTimeout(function() { beep(1200, 0.3); }, 300); renderUI(); return; }
+          phase = 'rest'; timeLeft = restSec;
+        } else if (phase === 'rest') {
+          beep(880, 0.15); setTimeout(function() { beep(1200, 0.15); }, 200);
+          currentRound++; phase = 'work'; timeLeft = workSec;
+        }
+      }
+      var display = container.querySelector('#hiit-display');
+      var roundEl = container.querySelector('#hiit-round');
+      var phaseEl = container.querySelector('#hiit-phase');
+      if (display) display.textContent = fmt(timeLeft);
+      if (roundEl) roundEl.textContent = currentRound + ' / ' + totalRounds;
+      if (phaseEl) {
+        if (phase === 'work') { phaseEl.textContent = exercises[currentRound-1] ? exercises[currentRound-1].icon + ' ' + exercises[currentRound-1].name : 'تمرین'; phaseEl.style.color = '#e17055'; }
+        else if (phase === 'rest') { phaseEl.textContent = '😴 استراحت'; phaseEl.style.color = '#00b894'; }
+        else { phaseEl.textContent = '🎉 تمام!'; phaseEl.style.color = '#ff9800'; }
+      }
+    }, 1000);
+  }
+
+  function pause() { running = false; clearInterval(interval); }
+  function reset() { running = false; clearInterval(interval); phase = 'ready'; currentRound = 0; timeLeft = 0; renderUI(); }
+
+  function renderUI() {
+    var ex = exercises[currentRound - 1];
+    var progressPct = totalRounds > 0 ? (currentRound - 1 + (phase === 'rest' ? 0.5 : 0)) / totalRounds * 100 : 0;
+    container.innerHTML = `
+      <div class="card" style="text-align:center">
+        <div id="hiit-display" style="font-size:3rem;font-weight:900;font-variant-numeric:tabular-nums;direction:ltr;padding:16px 0">${phase === 'ready' ? fmt(workSec) : phase === 'done' ? '🎉' : fmt(timeLeft)}</div>
+        <div id="hiit-phase" style="font-size:1.3rem;font-weight:700;min-height:36px;margin:4px 0">${phase === 'ready' ? '⏱ آماده شروع' : phase === 'done' ? '🎉 تمرین تمام شد! آفرین 👏' : phase === 'work' && ex ? ex.icon + ' ' + ex.name : '😴 استراحت'}</div>
+        <div id="hiit-round" style="font-size:.85rem;color:var(--text2);margin:4px 0">${phase === 'ready' ? '۱۲ حرکت × ۳۰s / استراحت ۱۰s' : currentRound + ' / ' + totalRounds}</div>
+        <div style="background:var(--border);border-radius:8px;height:8px;overflow:hidden;margin:12px 0">
+          <div style="width:${progressPct}%;height:100%;background:linear-gradient(90deg,#e17055,#fdcb6e,#00b894);border-radius:8px;transition:width 0.3s"></div>
+        </div>
+        <div style="display:flex;gap:12px;justify-content:center">
+          <button class="btn btn-primary" id="hiit-start" style="font-size:1.1rem;padding:12px 32px">${running ? '⏸ مکث' : phase === 'ready' ? '▶ شروع' : phase === 'done' ? '🔄 شروع مجدد' : '▶ ادامه'}</button>
+          <button class="btn" id="hiit-reset" style="padding:12px 20px;font-size:1.2rem">⟲</button>
+        </div>
+        <div style="margin-top:12px;font-size:.7rem;color:var(--text2)">⏱ کل: ۷ دقیقه | 🔥 ۳۰s کار / 😴 ۱۰s استراحت</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:12px;font-size:.65rem;color:var(--text2)">
+          ${exercises.map(function(e, i) { return '<div style="padding:4px;border-radius:6px;' + (i === currentRound - 1 && phase === 'work' ? 'background:var(--accent-glow);color:var(--accent);font-weight:700' : '') + '">' + e.icon + '<br>' + (i+1) + '</div>'; }).join('')}
+        </div>
+      </div>
+    `;
+    container.querySelector('#hiit-start').onclick = function() { if (running) pause(); else start(); renderUI(); };
+    container.querySelector('#hiit-reset').onclick = function() { reset(); };
+  }
+
+  renderUI();
+}
 
 
 
