@@ -6489,10 +6489,246 @@ function renderHiit(container) {
     `;
     container.querySelector('#hiit-start').onclick = function() { if (running) pause(); else start(); renderUI(); };
     container.querySelector('#hiit-reset').onclick = function() { reset(); };
-  }
-
-  renderUI();
+  }  renderUI();
 }
+
+// ─── Multiplication Table ───
+registerTool({
+  id: 'edu-multable',
+  name: 'جدول ضرب تعاملی',
+  icon: '✖️',
+  category: 'new-tools',
+  keywords: ['جدول', 'ضرب', 'ریاضی', 'تمرین', 'multiplication', 'math', 'times'],
+  desc: 'جدول ضرب تعاملی ۱ تا ۱۲ با حالت تمرین و آزمون',
+  render: function(container) {
+    var quizNum = 0, quizCorrect = 0, quizTotal = 0, quizN1 = 0, quizN2 = 0;
+    function newQuiz() { quizN1 = Math.floor(Math.random()*10)+2; quizN2 = Math.floor(Math.random()*10)+2; quizNum = quizN1 * quizN2; }
+    newQuiz();
+    function render() {
+      container.innerHTML = '';
+      var tabs = document.createElement('div'); tabs.className = 'tabs';
+      tabs.innerHTML = '<button class="tab active" data-tab="table">📊 جدول کامل</button><button class="tab" data-tab="quiz">🎯 آزمون</button>';
+      var content = document.createElement('div'); content.id = 'mt-content';
+      container.appendChild(tabs); container.appendChild(content);
+
+      function showTable() {
+        var html = '<div class="input-group"><label>عدد (۱-۱۲):</label><input type="range" id="mt-range" min="1" max="12" value="6" style="width:100%"><div style="text-align:center;font-weight:900;font-size:1.3rem;margin:8px 0;color:var(--accent)" id="mt-selected">۶</div></div>';
+        html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px" id="mt-grid"></div>';
+        content.innerHTML = html;
+        function fill(n) { n = parseInt(n)||6; document.getElementById('mt-selected').textContent = n+' ✕';
+          var g = document.getElementById('mt-grid'); g.innerHTML = '';
+          for (var i=1;i<=12;i++) { g.innerHTML += '<div class="chip" style="text-align:center;justify-content:center;cursor:default;font-weight:700">'+n+' × '+i+' = <span style="color:var(--accent)">'+(n*i)+'</span></div>'; }
+        }
+        fill(6);
+        document.getElementById('mt-range').oninput = function() { fill(this.value); };
+        container.querySelectorAll('.tab').forEach(function(t) { t.onclick = function() {
+          container.querySelectorAll('.tab').forEach(function(b) { b.classList.remove('active'); }); this.classList.add('active');
+          this.dataset.tab === 'table' ? showTable() : showQuiz();
+        };});
+      }
+      function showQuiz() {
+        var html = '<div class="card"><div style="text-align:center;margin:16px 0">';
+        html += '<div style="font-size:1rem;color:var(--text2);margin-bottom:8px">حاصل ضرب چقدره؟</div>';
+        html += '<div style="font-size:2.5rem;font-weight:900;margin:16px 0"><span style="color:var(--accent)" id="mq-n1">'+quizN1+'</span> × <span style="color:var(--danger)" id="mq-n2">'+quizN2+'</span> = ?</div>';
+        html += '<input type="number" id="mq-ans" placeholder="پاسخ" style="direction:ltr;text-align:center;font-size:1.3rem;width:120px;margin:0 auto" autofocus>';
+        html += '<br><button class="btn btn-primary" id="mq-check" style="margin-top:10px">✅ بررسی</button>';
+        html += '<div id="mq-result" style="margin-top:8px;min-height:24px;font-weight:700"></div>';
+        html += '<div style="margin-top:12px;font-size:.75rem;color:var(--text2)">✅ ' + quizCorrect + ' از ' + quizTotal + ' درست</div>';
+        html += '</div></div>';
+        content.innerHTML = html;
+        document.getElementById('mq-check').onclick = function() {
+          var ans = parseInt(document.getElementById('mq-ans').value);
+          var res = document.getElementById('mq-result');
+          if (isNaN(ans)) { res.textContent = '⚠️ یه عدد وارد کن!'; res.style.color = '#fdcb6e'; return; }
+          quizTotal++;
+          if (ans === quizNum) { quizCorrect++; res.textContent = '🎉 آفرین! ' + quizN1 + '×' + quizN2 + '=' + quizNum; res.style.color = '#00b894'; }
+          else { res.textContent = '❌ اشتباه! جواب ' + quizNum + ' بود'; res.style.color = '#e17055'; }
+          newQuiz();
+          document.getElementById('mq-n1').textContent = quizN1;
+          document.getElementById('mq-n2').textContent = quizN2;
+          document.getElementById('mq-ans').value = ''; document.getElementById('mq-ans').focus();
+          document.querySelector('#mq-result').nextElementSibling.textContent = '✅ ' + quizCorrect + ' از ' + quizTotal + ' درست';
+        };
+        document.getElementById('mq-ans').onkeydown = function(e) { if (e.key === 'Enter') document.getElementById('mq-check').click(); };
+        container.querySelectorAll('.tab').forEach(function(t) { t.onclick = function() {
+          container.querySelectorAll('.tab').forEach(function(b) { b.classList.remove('active'); }); this.classList.add('active');
+          this.dataset.tab === 'table' ? showTable() : showQuiz();
+        };});
+      }
+      showTable();
+    }
+    render();
+  }
+});
+
+// ─── Leitner Flash Cards ───
+registerTool({
+  id: 'edu-flashcard',
+  name: 'فلش کارت لایتنر',
+  icon: '🃏',
+  category: 'new-tools',
+  keywords: ['فلش', 'کارت', 'لایتنر', 'حافظه', 'یادگیری', 'flashcard', 'leitner', 'spaced'],
+  desc: 'سیستم لایتنر ساده: جعبه‌های ۵ تایی، مرور فاصله‌دار با ذخیره در IndexedDB',
+  render: function(container) {
+    var cards = [], boxes = [[],[],[],[],[]]; // box 0=new, box 4=learned
+    var currentCard = null, currentBox = 0, flipped = false, learning = false;
+    var defaults = [
+      { front: 'Hello', back: 'سلام' },
+      { front: 'Thank you', back: 'متشکرم' },
+      { front: 'Water', back: 'آب' },
+      { front: 'Book', back: 'کتاب' },
+    ];
+    function save() {
+      var data = { boxes: boxes, cards: cards };
+      dbPut('kv', 'flashcard_data', JSON.stringify(data)).catch(function() {});
+    }
+    function load(cb) {
+      dbGet('kv', 'flashcard_data').then(function(v) {
+        if (v) { var d = JSON.parse(v); boxes = d.boxes || [[],[],[],[],[]]; cards = d.cards || []; }
+        if (cards.length === 0) { cards = defaults.slice(); boxes = [cards.slice(),[],[],[],[]]; save(); }
+        cb();
+      }).catch(function() { cards = defaults.slice(); boxes = [cards.slice(),[],[],[],[]]; save(); cb(); });
+    }
+    function pickCard() {
+      for (var b = 0; b < 5; b++) { if (boxes[b].length > 0) { currentCard = boxes[b][0]; currentBox = b; return; } }
+      currentCard = null; currentBox = -1;
+    }
+    function renderUI() {
+      var counts = boxes.map(function(b) { return b.length; });
+      var total = cards.length;
+      container.innerHTML = '';
+      var html = '<div class="card">';
+      html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;font-size:.7rem;color:var(--text2)">';
+      html += counts.map(function(c, i) { var cols = ['#e74c3c','#e67e22','#f1c40f','#2ecc71','#3498db']; return '<span style="background:'+cols[i]+';color:#fff;padding:4px 8px;border-radius:8px">جعبه '+(i+1)+': '+c+'</span>'; }).join('');
+      html += '<span style="margin-right:auto">📦 '+total+' کارت</span>';
+      html += '</div>';
+      if (currentCard) {
+        html += '<div id="fc-card" style="background:var(--glass);border:2px solid var(--border);border-radius:14px;padding:40px 20px;text-align:center;cursor:pointer;min-height:180px;display:flex;align-items:center;justify-content:center;user-select:none;transition:all .3s;font-size:1.5rem;font-weight:700;direction:ltr">'+currentCard.front+'</div>';
+        html += '<style>#fc-card.flipped{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-color:var(--accent)}</style>';
+        html += '<div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-success" id="fc-ok" style="flex:1">✅ بلد بودم</button><button class="btn btn-accent" id="fc-no" style="flex:1">❌ نشد</button></div>';
+      } else {
+        html += '<div style="text-align:center;padding:48px 20px;color:var(--text2)"><div style="font-size:3rem;margin-bottom:12px">🎉</div><p>همه کارت‌ها رو بلدی! کارت جدید اضافه کن.</p></div>';
+      }
+      html += '<div class="input-group" style="margin-top:12px"><label>اضافه کردن کارت جدید:</label><div class="inline-inputs"><input type="text" id="fc-front" placeholder="روی کارت (انگلیسی)" style="direction:ltr;text-align:left;flex:1"><input type="text" id="fc-back" placeholder="پشت کارت (فارسی)" style="direction:rtl;flex:1"><button class="btn btn-primary" id="fc-add" style="flex-shrink:0">➕</button></div></div>';
+      html += '</div>';
+      container.innerHTML = html;
+      var cardEl = container.querySelector('#fc-card');
+      if (cardEl) {
+        cardEl.onclick = function() { this.classList.toggle('flipped'); this.textContent = this.classList.contains('flipped') ? (currentCard ? currentCard.back : '') : (currentCard ? currentCard.front : ''); };
+      }
+      var okBtn = container.querySelector('#fc-ok');
+      var noBtn = container.querySelector('#fc-no');
+      if (okBtn) okBtn.onclick = function() { answerCard(true); };
+      if (noBtn) noBtn.onclick = function() { answerCard(false); };
+      container.querySelector('#fc-add').onclick = function() {
+        var f = container.querySelector('#fc-front').value.trim();
+        var b = container.querySelector('#fc-back').value.trim();
+        if (!f || !b) { showToast('هر دو فیلد را پر کنید'); return; }
+        cards.push({ front: f, back: b }); boxes[0].push({ front: f, back: b });
+        container.querySelector('#fc-front').value = ''; container.querySelector('#fc-back').value = '';
+        pickCard(); save(); renderUI();
+      };
+    }
+    function answerCard(knew) {
+      if (!currentCard) return;
+      boxes[currentBox].shift();
+      if (knew) {
+        var newBox = Math.min(currentBox + 1, 4); boxes[newBox].push(currentCard);
+      } else {
+        boxes[0].push(currentCard);
+      }
+      pickCard(); save(); renderUI();
+    }
+    load(function() { pickCard(); renderUI(); });
+  }
+});
+
+// ─── Quadratic Equation Solver ───
+registerTool({
+  id: 'edu-quadratic',
+  name: 'حل معادله درجه ۲',
+  icon: '📐',
+  category: 'new-tools',
+  keywords: ['معادله', 'درجه۲', 'quadratic', 'دلتا', 'ریشه', 'ax2+bx+c', 'math'],
+  desc: 'حل معادله درجه دوم (ax² + bx + c = 0) با محاسبه دلتا و ریشه‌ها',
+  render: function(container) {
+    container.innerHTML = '';
+    var html = '<div class="card">';
+    html += '<div style="text-align:center;font-size:1.3rem;font-weight:700;margin-bottom:12px;direction:ltr">ax² + bx + c = 0</div>';
+    html += '<div class="inline-inputs"><div class="input-group"><label>a:</label><input type="number" id="qd-a" value="1" step="any" style="direction:ltr;text-align:right"></div><div class="input-group"><label>b:</label><input type="number" id="qd-b" value="-3" step="any" style="direction:ltr;text-align:right"></div><div class="input-group"><label>c:</label><input type="number" id="qd-c" value="2" step="any" style="direction:ltr;text-align:right"></div></div>';
+    html += '<button class="btn btn-primary" id="qd-solve" style="width:100%">📐 حل معادله</button>';
+    html += '<div id="qd-result" class="result"></div></div>';
+    container.innerHTML = html;
+    container.querySelector('#qd-solve').onclick = function() {
+      var a = parseFloat(container.querySelector('#qd-a').value) || 0;
+      var b = parseFloat(container.querySelector('#qd-b').value) || 0;
+      var c = parseFloat(container.querySelector('#qd-c').value) || 0;
+      var res = container.querySelector('#qd-result');
+      if (a === 0) { res.innerHTML = '<div class="row"><span class="label">⚠️</span><span class="value" style="color:var(--danger)">a نباید صفر باشد (معادله خطی است)</span></div>'; res.classList.add('show'); return; }
+      var delta = b*b - 4*a*c;
+      var vertex = -b/(2*a);
+      var sym = a > 0 ? '⌣' : '⌢';
+      if (delta > 0) {
+        var x1 = (-b + Math.sqrt(delta)) / (2*a); var x2 = (-b - Math.sqrt(delta)) / (2*a);
+        res.innerHTML = '<div class="row" style="border-bottom:2px solid var(--accent);padding-bottom:8px"><span class="label">Δ (دلتا):</span><span class="value" style="color:var(--success)">'+delta.toFixed(4)+'</span></div><div class="row"><span class="label">📊 وضعیت:</span><span class="value" style="color:var(--success)">دو ریشه حقیقی</span></div><div class="row"><span class="label">x₁:</span><span class="value" style="font-size:1.2rem">'+x1.toFixed(4)+'</span></div><div class="row"><span class="label">x₂:</span><span class="value" style="font-size:1.2rem">'+x2.toFixed(4)+'</span></div><div class="row"><span class="label">رأس سهمی:</span><span class="value">('+vertex.toFixed(2)+', '+((-delta/(4*a)).toFixed(2))+') '+sym+'</span></div>';
+      } else if (delta === 0) {
+        res.innerHTML = '<div class="row" style="border-bottom:2px solid var(--accent);padding-bottom:8px"><span class="label">Δ (دلتا):</span><span class="value">۰</span></div><div class="row"><span class="label">📊 وضعیت:</span><span class="value" style="color:var(--warning)">ریشه مضاعف</span></div><div class="row"><span class="label">x:</span><span class="value" style="font-size:1.2rem">'+vertex.toFixed(4)+'</span></div>';
+      } else {
+        var real = (-b/(2*a)).toFixed(4); var imag = (Math.sqrt(-delta)/(2*a)).toFixed(4);
+        res.innerHTML = '<div class="row" style="border-bottom:2px solid var(--accent);padding-bottom:8px"><span class="label">Δ (دلتا):</span><span class="value" style="color:var(--danger)">'+delta.toFixed(4)+'</span></div><div class="row"><span class="label">📊 وضعیت:</span><span class="value" style="color:var(--danger)">دو ریشه مختلط</span></div><div class="row"><span class="label">x₁:</span><span class="value" style="direction:ltr">'+real+' + '+imag+'i</span></div><div class="row"><span class="label">x₂:</span><span class="value" style="direction:ltr">'+real+' − '+imag+'i</span></div>';
+      }
+      res.classList.add('show');
+    };
+  }
+});
+
+// ─── Geometry Area & Volume ───
+registerTool({
+  id: 'edu-geometry',
+  name: 'مساحت و حجم اشکال',
+  icon: '📏',
+  category: 'new-tools',
+  keywords: ['مساحت', 'حجم', 'هندسه', 'area', 'volume', 'محیط', 'دایره', 'مربع', 'مثلث'],
+  desc: 'محاسبه مساحت، محیط و حجم ۱۲ شکل هندسی رایج',
+  render: function(container) {
+    var shapes = [
+      { id: 'square', name: 'مربع', icon: '⬛', params: [{ n: 'side', label: 'ضلع (a)' }], area: function(p) { return p.side*p.side; }, perimeter: function(p) { return 4*p.side; }, hasVolume: false },
+      { id: 'rectangle', name: 'مستطیل', icon: '▬', params: [{ n: 'w', label: 'طول' }, { n: 'h', label: 'عرض' }], area: function(p) { return p.w*p.h; }, perimeter: function(p) { return 2*(p.w+p.h); }, hasVolume: false },
+      { id: 'circle', name: 'دایره', icon: '⭕', params: [{ n: 'r', label: 'شعاع (r)' }], area: function(p) { return Math.PI*p.r*p.r; }, perimeter: function(p) { return 2*Math.PI*p.r; }, hasVolume: false },
+      { id: 'triangle', name: 'مثلث', icon: '🔺', params: [{ n: 'base', label: 'قاعده' }, { n: 'height', label: 'ارتفاع' }], area: function(p) { return 0.5*p.base*p.height; }, hasVolume: false },
+      { id: 'sphere', name: 'کره', icon: '🔵', params: [{ n: 'r', label: 'شعاع (r)' }], area: function(p) { return 4*Math.PI*p.r*p.r; }, volume: function(p) { return (4/3)*Math.PI*Math.pow(p.r,3); }, hasVolume: true },
+      { id: 'cube', name: 'مکعب', icon: '🧊', params: [{ n: 'side', label: 'ضلع (a)' }], area: function(p) { return 6*p.side*p.side; }, volume: function(p) { return Math.pow(p.side,3); }, hasVolume: true },
+      { id: 'cylinder', name: 'استوانه', icon: '🥫', params: [{ n: 'r', label: 'شعاع' }, { n: 'h', label: 'ارتفاع' }], area: function(p) { return 2*Math.PI*p.r*(p.r+p.h); }, volume: function(p) { return Math.PI*p.r*p.r*p.h; }, hasVolume: true },
+      { id: 'cone', name: 'مخروط', icon: '🔺', params: [{ n: 'r', label: 'شعاع' }, { n: 'h', label: 'ارتفاع' }], area: function(p) { var s = Math.sqrt(p.r*p.r+p.h*p.h); return Math.PI*p.r*(p.r+s); }, volume: function(p) { return (1/3)*Math.PI*p.r*p.r*p.h; }, hasVolume: true },
+    ];
+    var current = shapes[0];
+    function render() {
+      container.innerHTML = '';
+      var html = '<div class="card">';
+      html += '<div class="input-group"><label>شکل:</label><select id="geo-shape">'+shapes.map(function(s,i) { return '<option value="'+i+'"'+(current.id===s.id?' selected':'')+'>'+s.icon+' '+s.name+'</option>'; }).join('')+'</select></div>';
+      html += '<div id="geo-params">'+current.params.map(function(p) { return '<div class="input-group"><label>'+p.label+':</label><input type="number" id="geo-'+p.n+'" value="5" step="any" style="direction:ltr;text-align:right"></div>'; }).join('')+'</div>';
+      html += '<button class="btn btn-primary" id="geo-calc" style="width:100%">📏 محاسبه</button>';
+      html += '<div id="geo-result" class="result"></div></div>';
+      container.innerHTML = html;
+
+      function calc() {
+        var params = {};
+        current.params.forEach(function(p) { params[p.n] = parseFloat(document.getElementById('geo-'+p.n).value) || 0; });
+        var res = document.getElementById('geo-result');
+        if (Object.values(params).some(function(v) { return v <= 0; })) { res.classList.remove('show'); return; }
+        var area = current.area(params);
+        var lines = '<div class="row"><span class="label">📐 مساحت:</span><span class="value" style="font-size:1.2rem">'+area.toFixed(3)+' واحد²</span></div>';
+        if (current.perimeter) lines += '<div class="row"><span class="label">🔲 محیط:</span><span class="value">'+current.perimeter(params).toFixed(3)+' واحد</span></div>';
+        if (current.volume) lines += '<div class="row"><span class="label">📦 حجم:</span><span class="value" style="font-size:1.2rem">'+current.volume(params).toFixed(3)+' واحد³</span></div>';
+        res.innerHTML = lines; res.classList.add('show');
+      }
+
+      document.getElementById('geo-shape').onchange = function() { current = shapes[parseInt(this.value)]; render(); };
+      document.getElementById('geo-calc').onclick = calc;
+    }
+    render();
+  }
+});
 
 
 
@@ -14024,6 +14260,7 @@ init();
     if ('serviceWorker' in navigator) {
       var _swUpdateReady = false;
       var _swUpdateToast = null;
+      var _swRegistration = null;
 
       // Create a persistent update banner
       function showUpdateBanner() {
@@ -14071,6 +14308,7 @@ init();
 
       window.addEventListener('load', function() {
         navigator.serviceWorker.register('./service-worker.js').then(function(registration) {
+          _swRegistration = registration;
           console.log('[SW] Registered:', registration.scope);
 
           // Listen for update messages from the SW
@@ -14109,6 +14347,72 @@ init();
       navigator.serviceWorker.addEventListener('controllerchange', function() {
         console.log('[SW] Controller changed — new SW active');
       });
+
+      // ─── Notification API ───
+      if ('Notification' in window && Notification.permission === 'default') {
+        // Request notification permission after first interaction
+        var _notifRequested = false;
+        function requestNotifPermission() {
+          if (_notifRequested) return;
+          _notifRequested = true;
+          Notification.requestPermission().then(function(perm) {
+            if (perm === 'granted') {
+              console.log('[Notification] Permission granted');
+              // Register periodic sync if available
+              if (_swRegistration && 'periodicSync' in _swRegistration) {
+                _swRegistration.periodicSync.register('update-cache', { minInterval: 24 * 60 * 60 * 1000 }).catch(function() {});
+              }
+            }
+          }).catch(function() {});
+        }
+        // Request on first click/tap
+        document.addEventListener('click', requestNotifPermission, { once: true });
+        document.addEventListener('touchstart', requestNotifPermission, { once: true });
+        // Also try after 30 seconds if user hasn't interacted
+        setTimeout(requestNotifPermission, 30000);
+      }
+
+      // ─── Background Sync ───
+      if (_swRegistration && 'SyncManager' in window) {
+        _swRegistration.sync.register('sync-toolbox').catch(function(err) {
+          console.log('[Sync] Background sync not available:', err);
+        });
+      }
+
+      // ─── Tool State Persistence (through SW IndexedDB) ───
+      window.__saveToolState = function(toolId, state) {
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({ type: 'SAVE_STATE', toolId: toolId, state: state });
+        }
+        // Fallback: save to main IndexedDB
+        if (toolId && state) {
+          try { dbPut('kv', 'state_' + toolId, JSON.stringify(state)).catch(function() {}); } catch(e) {}
+        }
+      };
+
+      window.__loadToolState = function(toolId, callback) {
+        // Try SW IndexedDB first
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+          var channel = new MessageChannel();
+          channel.port1.onmessage = function(event) {
+            if (event.data && event.data.state) {
+              callback(event.data.state);
+            } else {
+              // Fallback to main DB
+              dbGet('kv', 'state_' + toolId).then(function(v) {
+                callback(v ? JSON.parse(v) : null);
+              }).catch(function() { callback(null); });
+            }
+          };
+          navigator.serviceWorker.controller.postMessage({ type: 'GET_STATE', toolId: toolId }, [channel.port2]);
+          // Timeout fallback
+          setTimeout(function() { callback(null); }, 2000);
+        } else {
+          dbGet('kv', 'state_' + toolId).then(function(v) {
+            callback(v ? JSON.parse(v) : null);
+          }).catch(function() { callback(null); });
+        }
+      };
     }
   </script>
 </body>

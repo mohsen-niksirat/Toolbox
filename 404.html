@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#6c5ce7">
+  <title>۴۰۴ — جعبه ابزار حرفه‌ای</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0a0b10;--text:#e8eaed;--text2:#8b90a5;
+      --accent:#6c5ce7;--accent2:#a29bfe;
+      --card-bg:#1a1d2b;--border:#2a2e42;
+      --radius:16px;
+    }
+    @media(prefers-color-scheme:light){
+      :root{--bg:#f0f2f5;--card-bg:#fff;--text:#1a1d27;--text2:#5f6577;--border:#e0e3e8}
+    }
+    html,body{
+      height:100%;font-family:system-ui,-apple-system,sans-serif;
+      background:var(--bg);color:var(--text);
+      display:flex;align-items:center;justify-content:center;
+    }
+    .container{text-align:center;max-width:440px;padding:20px}
+    .emoji{font-size:6rem;margin-bottom:16px;animation:bounce 1s ease infinite}
+    @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+    h1{font-size:3rem;font-weight:900;margin-bottom:8px;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    }
+    .sub{font-size:1.1rem;color:var(--text2);margin-bottom:24px;line-height:1.8}
+    .card{
+      background:var(--card-bg);border:1px solid var(--border);
+      border-radius:var(--radius);padding:20px;text-align:right;margin-bottom:16px;
+    }
+    .card h3{font-size:.9rem;margin-bottom:10px;color:var(--accent)}
+    .card p{font-size:.82rem;color:var(--text2);line-height:1.7;margin-bottom:6px}
+    .btn{
+      display:inline-block;padding:12px 28px;border-radius:12px;
+      background:linear-gradient(135deg,var(--accent),#5a4bd1);
+      color:#fff;text-decoration:none;font-weight:700;font-size:.95rem;
+      transition:transform .2s;box-shadow:0 4px 16px rgba(108,92,231,.3);
+    }
+    .btn:hover{transform:scale(1.05)}
+    .btn:active{transform:scale(.95)}
+    .links{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+    .links a{
+      padding:8px 16px;border-radius:8px;border:1px solid var(--border);
+      color:var(--text2);text-decoration:none;font-size:.8rem;transition:all .2s;
+    }
+    .links a:hover{border-color:var(--accent);color:var(--accent)}
+    .offline-notice{
+      margin-top:20px;padding:12px;border-radius:12px;
+      background:rgba(253,203,110,.1);border:1px solid rgba(253,203,110,.2);
+      font-size:.78rem;color:#f0a500;
+      display:none;
+    }
+    .offline-notice.show{display:block}
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="emoji">🧰</div>
+  <h1>۴۰۴</h1>
+  <p class="sub">صفحه‌ای که دنبالش هستید پیدا نشد!<br>اما ۱۳۴+ ابزار کاربردی منتظر شماست 🙂</p>
+
+  <a class="btn" href="./index.html">🏠 برو به جعبه ابزار</a>
+
+  <div class="links">
+    <a href="./index.html#calc-scientific">🧮 ماشین‌حساب</a>
+    <a href="./index.html#conv-currency">💱 تبدیل ارز</a>
+    <a href="./index.html#game-snake">🐍 مار</a>
+    <a href="./index.html#health-tdee">🔥 TDEE</a>
+  </div>
+
+  <div class="card" style="text-align:center">
+    <h3>📱 اپ را نصب کنید!</h3>
+    <p>با نصب PWA، همه ابزارها حتی آفلاین هم در دسترس هستند</p>
+    <p style="font-size:.72rem">Chrome: منو → افزودن به صفحه اصلی<br>Safari: Share → Add to Home Screen</p>
+  </div>
+
+  <div class="offline-notice" id="offline-note">
+    ⚡ شما در حال حاضر <strong>آفلاین</strong> هستید. صفحه اصلی هنوز در دسترس است.
+  </div>
+</div>
+
+<script>
+// Check if offline
+if (!navigator.onLine) {
+  document.getElementById('offline-note').classList.add('show');
+}
+// Also redirect to index.html after 10 seconds if user does nothing
+setTimeout(function() {
+  if (document.referrer === '' && window.location.hash === '') {
+    window.location.href = './index.html';
+  }
+}, 15000);
+</script>
+</body>
+</html>
