@@ -622,6 +622,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
       <div class="sidebar-header">
         <h1>🧰 تولباکس</h1>
         <p>۱۰۰+ ابزار کاربردی</p>
+        <button id="langBtn" style="margin-top:6px;padding:4px 12px;border:1px solid var(--border);border-radius:8px;background:var(--glass);color:var(--text2);font-size:.7rem;cursor:pointer;font-weight:600" onclick="setLang(_currentLang==='fa'?'en':'fa')">English</button>
       </div>
       <div class="sidebar-search">
         <input type="text" id="sidebarSearch" placeholder="جستجوی ابزار..." class="input">
@@ -673,18 +674,9 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
 
     <!-- Bottom Nav -->
     <nav id="bottomNav" class="bottom-nav">
-      <div class="nav-item active" data-page="home">
-        <span class="nav-icon">🏠</span>
-        <span>خانه</span>
-      </div>
-      <div class="nav-item" data-page="search">
-        <span class="nav-icon">🔍</span>
-        <span>جستجو</span>
-      </div>
-      <div class="nav-item" data-page="favorites">
-        <span class="nav-icon">⭐</span>
-        <span>علاقه‌مندی</span>
-      </div>
+      <div class="nav-item active" data-page="home"><span class="nav-icon">🏠</span><span id="bn-home">خانه</span></div>
+      <div class="nav-item" data-page="search"><span class="nav-icon">🔍</span><span id="bn-search">جستجو</span></div>
+      <div class="nav-item" data-page="favorites"><span class="nav-icon">⭐</span><span id="bn-fav">علاقه‌مندی</span></div>
     </nav>
 
     <div id="toast" class="toast"></div>
@@ -1099,6 +1091,60 @@ function initTheme() {
 }
 
 
+// ═══ i18n — Multi-language ═══
+let _currentLang = lsGet('lang', document.documentElement.lang || 'fa');
+const _DICT = {
+  fa: {
+    'cat.calculators':'🧮 محاسبات','cat.converters':'🔄 مبدل‌ها','cat.iran-market':'🇮🇷 بازار ایران',
+    'cat.text-code':'📝 متن و کد','cat.generators':'🔧 تولیدکننده‌ها','cat.color-tools':'🎨 رنگ',
+    'cat.time':'⏱ زمان','cat.health':'🏥 سلامت','cat.financial':'💵 مالی',
+    'cat.iran-info':'📋 اطلاعات ایران','cat.other':'🌐 ابزارهای دیگر','cat.games':'🎮 بازی‌ها',
+    'cat.productivity':'🎯 بهره‌وری','cat.new-tools':'🆕 ابزارهای جدید',
+    'search':'جستجوی ابزار...','home':'خانه','favorites':'علاقه‌مندی‌ها','search_label':'جستجو',
+    'recent':'ابزارهای اخیر','all_tools':'همه ابزارها','back':'← بازگشت','theme':'تغییر تم',
+    'menu':'منو','offline':'آفلاین هستید','copy_done':'کپی شد!','confirm_delete':'آیا مطمئن هستید؟',
+    'new_version':'نسخه جدید آماده است!','update':'بروزرسانی',
+    'settings':'تنظیمات','font':'فونت','backup':'بکاپ','stats':'آمار',
+    'export':'📤 خروجی JSON','import':'📥 وارد کردن JSON','clear_all':'🗑️ پاک کردن همه داده‌ها',
+    'discover':'✨ اکتشاف ابزارها','discover_desc':'امروز این ابزارها رو امتحان کن:',
+    'tour_welcome':'به جعبه ابزار خوش آمدید! 🧰','tour_step1':'۱. ابزار مورد نظر رو انتخاب کنید',
+    'tour_step2':'۲. از نوار کناری دسته‌بندی کنید','tour_step3':'۳. ابزارهای مورد علاقه رو ⭐ کنید',
+    'tour_step4':'۴. از جستجو برای پیدا کردن سریع استفاده کنید','tour_step5':'۵. اپ رو روی گوشی نصب کنید 📱',
+    'tour_done':'متوجه شدم!','lang_switch':'English',
+    'initializing':'🧰 جعبه ابزار حرفه‌ای','title_suffix':' — جعبه ابزار حرفه‌ای',
+    'no_favorites':'هنوز ابزاری رو ⭐ نکردی!','no_recent':'اخیراً ابزاری استفاده نکردی.',
+    'init_error':'⚠️ خطا در راه‌اندازی','clear_cache':'لطفاً Cache مرورگر را پاک کنید',
+  },
+  en: {
+    'cat.calculators':'🧮 Calculators','cat.converters':'🔄 Converters','cat.iran-market':'🇮🇷 Iran Market',
+    'cat.text-code':'📝 Text & Code','cat.generators':'🔧 Generators','cat.color-tools':'🎨 Color',
+    'cat.time':'⏱ Time','cat.health':'🏥 Health','cat.financial':'💵 Finance',
+    'cat.iran-info':'📋 Iran Info','cat.other':'🌐 Other Tools','cat.games':'🎮 Games',
+    'cat.productivity':'🎯 Productivity','cat.new-tools':'🆕 New Tools',
+    'search':'Search tools...','home':'Home','favorites':'Favorites','search_label':'Search',
+    'recent':'Recent Tools','all_tools':'All Tools','back':'← Back','theme':'Toggle Theme',
+    'menu':'Menu','offline':'You are offline','copy_done':'Copied!','confirm_delete':'Are you sure?',
+    'new_version':'New version available!','update':'Update',
+    'settings':'Settings','font':'Font','backup':'Backup','stats':'Statistics',
+    'export':'📤 Export JSON','import':'📥 Import JSON','clear_all':'🗑️ Clear All Data',
+    'discover':'✨ Tool Discovery','discover_desc':'Try these tools today:',
+    'tour_welcome':'Welcome to Toolbox! 🧰','tour_step1':'1. Select a tool',
+    'tour_step2':'2. Browse by category','tour_step3':'3. ⭐ Your favorite tools',
+    'tour_step4':'4. Use search to find quickly','tour_step5':'5. Install on your phone 📱',
+    'tour_done':'Got it!','lang_switch':'فارسی',
+    'initializing':'🧰 Toolbox Pro','title_suffix':' — Toolbox Pro',
+    'no_favorites':'No favorites yet! ⭐','no_recent':'No recent tools used.',
+    'init_error':'⚠️ Initialization Error','clear_cache':'Please clear browser cache (Ctrl+Shift+Del)',
+  }
+};
+function _tr(key) { var d=_DICT[_currentLang]||_DICT.fa; return d[key]||(_DICT.fa[key]||key); }
+function _toolName(tool) { return _currentLang==='en'&&tool.name_en ? tool.name_en : tool.name; }
+function _toolDesc(tool) { return _currentLang==='en'&&tool.desc_en ? tool.desc_en : tool.desc; }
+function setLang(lang) { _currentLang=lang; lsSet('lang',lang); location.reload(); }
+
+// ═══ End i18n ═══
+
+
 // ═══ registry.js ═══
 // ═══════════════════════════════════════════
 // Tool Registry — Central tool management
@@ -1106,20 +1152,20 @@ function initTheme() {
 
 // Tool categories definition
 const CATEGORIES = [
-  { id: 'calculators', name: '🧮 محاسبات', desc: 'ماشین‌حساب و ابزارهای محاسباتی' },
-  { id: 'converters', name: '🔄 مبدل‌ها', desc: 'تبدیل واحد، ارز، دما و...' },
-  { id: 'iran-market', name: '🇮🇷 بازار ایران', desc: 'قیمت لحظه‌ای ارز و سکه' },
-  { id: 'text-code', name: '📝 متن و کد', desc: 'ابزارهای پردازش متن و کدنویسی' },
-  { id: 'generators', name: '🔧 تولیدکننده‌ها', desc: 'رمز عبور، QR، UUID و...' },
-  { id: 'color-tools', name: '🎨 رنگ', desc: 'ابزارهای رنگ و پالت' },
-  { id: 'time', name: '⏱ زمان', desc: 'کرنومتر، شمارش معکوس و...' },
-  { id: 'health', name: '🏥 سلامت', desc: 'ابزارهای سلامت و تندرستی' },
-  { id: 'financial', name: '💵 مالی', desc: 'محاسبات مالی و حقوقی' },
-  { id: 'iran-info', name: '📋 اطلاعات ایران', desc: 'کد پستی، شبا، کد ملی و...' },
-  { id: 'other', name: '🌐 ابزارهای دیگر', desc: 'ترجمه، آبوهوا، تقویم و...' },
-  { id: 'games', name: '🎮 بازی‌ها', desc: 'بازی‌های سرگرم‌کننده' },
-  { id: 'productivity', name: '🎯 بهره‌وری', desc: 'ابزارهای مدیریت زمان و کار' },
-  { id: 'new-tools', name: '🆕 ابزارهای جدید', desc: 'ابزارهای پیشرفته' },
+  { id: 'calculators', get name() { return _tr('cat.calculators'); } },
+  { id: 'converters', get name() { return _tr('cat.converters'); } },
+  { id: 'iran-market', get name() { return _tr('cat.iran-market'); } },
+  { id: 'text-code', get name() { return _tr('cat.text-code'); } },
+  { id: 'generators', get name() { return _tr('cat.generators'); } },
+  { id: 'color-tools', get name() { return _tr('cat.color-tools'); } },
+  { id: 'time', get name() { return _tr('cat.time'); } },
+  { id: 'health', get name() { return _tr('cat.health'); } },
+  { id: 'financial', get name() { return _tr('cat.financial'); } },
+  { id: 'iran-info', get name() { return _tr('cat.iran-info'); } },
+  { id: 'other', get name() { return _tr('cat.other'); } },
+  { id: 'games', get name() { return _tr('cat.games'); } },
+  { id: 'productivity', get name() { return _tr('cat.productivity'); } },
+  { id: 'new-tools', get name() { return _tr('cat.new-tools'); } },
 ];
 
 // All registered tools
@@ -1141,7 +1187,10 @@ function registerTools(toolList) {
 
 // Get a tool by ID
 function getTool(id) {
-  return tools.get(id);
+  var t = tools.get(id);
+  if (!t) return null;
+  // Return a copy with translated name/desc
+  return Object.assign({}, t, { name: _toolName(t), desc: _toolDesc(t) });
 }
 
 // Get all tools
@@ -1158,11 +1207,11 @@ function getToolsByCategory(categoryId) {
 function searchTools(query) {
   const q = query.toLowerCase().trim();
   if (!q) return [];
-  return Array.from(tools.values()).filter(t =>
-    t.name.toLowerCase().includes(q) ||
-    (t.keywords && t.keywords.some(k => k.includes(q))) ||
-    (t.desc && t.desc.toLowerCase().includes(q))
-  );
+  return Array.from(tools.values()).filter(function(t) {
+    var n = _toolName(t).toLowerCase();
+    var d = _toolDesc(t).toLowerCase();
+    return n.includes(q) || (t.keywords && t.keywords.some(function(k) { return k.includes(q); })) || d.includes(q);
+  }).map(function(t) { return Object.assign({}, t, { name: _toolName(t), desc: _toolDesc(t) }); });
 }
 
 // Get category info
@@ -14753,13 +14802,14 @@ var _initDone = false;
 async function init() {
   try {
     initTheme();
+    translateUI();
+    initTour();
     buildSidebar();
     await buildHomePage();
 
     initRouter();
     setRouteChangeCallback(handleRouteChange);
 
-    // Handle initial route
     const route = getCurrentRoute();
     if (route) handleRouteChange(route);
 
@@ -14767,17 +14817,224 @@ async function init() {
     console.log('🧰 Toolbox Pro initialized —', getAllTools().length, 'tools loaded');
   } catch (err) {
     console.error('Toolbox init error:', err);
-    // Show error on page so user knows what happened
     var el = document.getElementById('allToolsGrid');
     if (el) {
-      el.innerHTML = '<div style="text-align:center;padding:40px;color:#e17055"><h3>⚠️ خطا در راه‌اندازی</h3><p style="font-size:14px;direction:ltr;margin-top:10px">' + 
-        (err.message || String(err)).replace(/</g,'&lt;') + 
-        '</p><p style="margin-top:10px;font-size:12px;color:#888">لطفاً Cache مرورگر را پاک کنید (Ctrl+Shift+Del) و دوباره تلاش کنید</p></div>';
+      el.innerHTML = '<div style="text-align:center;padding:40px;color:#e17055"><h3>' + _tr('init_error') + '</h3><p style="font-size:14px;direction:ltr;margin-top:10px">' + 
+        (err.message || String(err)).replace(/</g,'&lt;') + '</p><p style="margin-top:10px;font-size:12px;color:#888">' + _tr('clear_cache') + ' (Ctrl+Shift+Del)</p></div>';
     }
   }
 }
 
-init();
+// ─── Translate UI ───
+function translateUI() {
+  var set = function(id, key) { var el = document.getElementById(id); if (el) el.textContent = _tr(key); };
+  var setPH = function(id, key) { var el = document.getElementById(id); if (el) el.placeholder = _tr(key); };
+  set('bn-home', 'home'); set('bn-search', 'search_label'); set('bn-fav', 'favorites');
+  setPH('sidebarSearch', 'search');
+  var lb = document.getElementById('langBtn'); if (lb) lb.textContent = _tr('lang_switch');
+  document.title = _tr('initializing');
+}
+
+// ─── Tour + Discovery ───
+function initTour() {
+  var seen = lsGet('tour_seen', false);
+  if (seen) { initDiscovery(); return; }
+  var steps = ['tour_welcome','tour_step1','tour_step2','tour_step3','tour_step4','tour_step5'];
+  var stepIdx = 0;
+  var overlay = document.createElement('div');
+  overlay.id = '__tourOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center';
+  function showStep() {
+    overlay.innerHTML = '<div style="background:var(--card,#1a1d2b);border-radius:20px;padding:32px 24px;max-width:360px;text-align:center;color:var(--text,#e8eaed);animation:pageSlide .3s ease">'+
+      '<div style="font-size:1.3rem;font-weight:800;margin-bottom:12px">' + _tr(steps[stepIdx]) + '</div>'+
+      '<div style="font-size:.8rem;color:var(--text2,#8b90a5);margin-bottom:20px">' + (stepIdx+1) + ' / ' + steps.length + '</div>'+
+      '<button class="btn btn-primary" id="__tourNext" style="width:100%">' + (stepIdx < steps.length-1 ? '▶ ادامه' : _tr('tour_done')) + '</button>'+
+      '<button class="btn" id="__tourSkip" style="width:100%;margin-top:8px;font-size:.75rem">' + _tr('tour_done') + '</button>'+
+    '</div>';
+    overlay.querySelector('#__tourNext').onclick = function() { stepIdx++; if (stepIdx >= steps.length) { finishTour(); } else { showStep(); } };
+    overlay.querySelector('#__tourSkip').onclick = finishTour;
+  }
+  function finishTour() { lsSet('tour_seen', true); overlay.remove(); initDiscovery(); }
+  showStep();
+  document.body.appendChild(overlay);
+}
+
+function initDiscovery() {
+  var today = new Date().toDateString();
+  var lastDiscovery = lsGet('discovery_date', '');
+  if (lastDiscovery === today) return;
+  lsSet('discovery_date', today);
+  var allTools = Array.from(tools.values());
+  var picks = [];
+  while (picks.length < 3 && picks.length < allTools.length) {
+    var rand = allTools[Math.floor(Math.random() * allTools.length)];
+    if (picks.indexOf(rand) < 0) picks.push(rand);
+  }
+  if (picks.length === 0) return;
+  setTimeout(function() {
+    var toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9997;background:var(--card,#1a1d2b);border:2px solid var(--accent,#6c5ce7);border-radius:16px;padding:16px 20px;max-width:380px;width:90vw;box-shadow:0 8px 32px rgba(108,92,231,.3);animation:pageSlide .3s ease';
+    toast.innerHTML = '<div style="font-weight:800;font-size:.9rem;color:var(--accent,#6c5ce7);margin-bottom:10px">' + _tr('discover') + '</div><div style="font-size:.75rem;color:var(--text2,#8b90a5);margin-bottom:10px">' + _tr('discover_desc') + '</div>' +
+      picks.map(function(t) {
+        return '<div style="display:flex;align-items:center;gap:8px;padding:8px;margin:4px 0;background:var(--glass,rgba(255,255,255,.04));border-radius:8px;cursor:pointer;font-size:.82rem" onclick="navigate(\''+t.id+'\');this.parentElement.parentElement.remove()"><span style="font-size:1.2rem">'+t.icon+'</span><span style="font-weight:600">'+_toolName(t)+'</span></div>';
+      }).join('') +
+      '<button class="btn btn-ghost" style="width:100%;margin-top:8px;font-size:.7rem" onclick="this.parentElement.parentElement.remove()">✕ ' + _tr('tour_done') + '</button>';
+    document.body.appendChild(toast);
+    setTimeout(function() { if (toast.parentElement) toast.remove(); }, 15000);
+  }, 2000);
+}
+
+// ─── Compound Interest Calculator ───
+registerTool({
+  id: 'fin-compound',
+  name: 'سود مرکب با نمودار',
+  name_en: 'Compound Interest Chart',
+  icon: '📈',
+  category: 'financial', keywords: ['compound','interest','سود','مرکب','نمودار','سرمایه'],
+  desc: 'محاسبه سود مرکب با نمایش جدول و نمودار رشد', desc_en: 'Compound interest with growth chart and table',
+  render: function(c) {
+    c.innerHTML = '<div class="card"><div class="inline-inputs"><div class="input-group"><label>سرمایه اولیه (تومان):</label><input type="number" id="ci-principal" value="10000000" style="direction:ltr;text-align:right"></div><div class="input-group"><label>نرخ سود سالانه (%):</label><input type="number" id="ci-rate" value="20" style="direction:ltr;text-align:right"></div></div><div class="inline-inputs"><div class="input-group"><label>مدت (سال):</label><input type="number" id="ci-years" value="10" style="direction:ltr;text-align:right"></div><div class="input-group"><label>افزایش ماهانه:</label><input type="number" id="ci-monthly" value="0" style="direction:ltr;text-align:right"></div></div><button class="btn btn-primary" id="ci-calc" style="width:100%">📊 محاسبه</button><div id="ci-result" class="result"></div><canvas id="ci-chart" width="400" height="200" style="width:100%;max-width:400px;margin:10px auto;display:block;border-radius:8px"></canvas></div>';
+    function calc() {
+      var P = parseFloat(c.querySelector('#ci-principal').value)||0;
+      var r = (parseFloat(c.querySelector('#ci-rate').value)||0)/100;
+      var yrs = parseInt(c.querySelector('#ci-years').value)||0;
+      var M = parseFloat(c.querySelector('#ci-monthly').value)||0;
+      var res = c.querySelector('#ci-result');
+      if (P<=0||yrs<=0) { res.classList.remove('show'); return; }
+      var monthlyR = r/12, data=[], total=P;
+      for (var y=0;y<=yrs;y++) {
+        if (y>0) { total=total*Math.pow(1+r,1); if (M>0) { for (var m=0;m<12;m++) total=(total+M)*Math.pow(1+monthlyR,1); } else { total=P*Math.pow(1+r,y)+M*12*((Math.pow(1+r,y)-1)/r); } }
+        data.push(Math.round(total));
+      }
+      var final = data[data.length-1], invested = P + M*12*yrs, profit = final - invested;
+      res.innerHTML = '<div class="loan-summary"><div class="loan-box"><div class="num">'+final.toLocaleString('fa-IR')+'</div><div class="lbl">💰 ارزش نهایی</div></div><div class="loan-box"><div class="num">'+invested.toLocaleString('fa-IR')+'</div><div class="lbl">💵 سرمایه‌گذاری</div></div><div class="loan-box"><div class="num" style="color:var(--success)">'+profit.toLocaleString('fa-IR')+'</div><div class="lbl">📈 سود خالص</div></div><div class="loan-box"><div class="num">% '+Math.round(profit/invested*100)+'</div><div class="lbl">بازدهی</div></div></div>';
+      res.classList.add('show');
+      var canvas=c.querySelector('#ci-chart'), ctx=canvas.getContext('2d'), w=canvas.width, h=canvas.height;
+      ctx.clearRect(0,0,w,h); if (data.length<2) return;
+      var max=Math.max.apply(null,data), padX=40, padY=30;
+      ctx.strokeStyle='var(--border,#333)'; ctx.lineWidth=1; ctx.beginPath();
+      for (var i=0;i<=4;i++) { var y=padY+(h-padY*2)*i/4; ctx.moveTo(padX,y); ctx.lineTo(w-padX,y); }
+      ctx.stroke();
+      ctx.beginPath(); ctx.strokeStyle='#6c5ce7'; ctx.lineWidth=3; ctx.lineJoin='round';
+      data.forEach(function(v,i) { var x=padX+(w-padX*2)*i/(data.length-1), py=padY+(h-padY*2)*(1-v/max); if(i===0) ctx.moveTo(x,py); else ctx.lineTo(x,py); });
+      ctx.stroke();
+      data.forEach(function(v,i) { var x=padX+(w-padX*2)*i/(data.length-1), py=padY+(h-padY*2)*(1-v/max); ctx.fillStyle='#6c5ce7'; ctx.beginPath(); ctx.arc(x,py,3,0,Math.PI*2); ctx.fill(); });
+      ctx.fillStyle='var(--text,#e8eaed)'; ctx.font='10px system-ui'; ctx.fillText(data[0].toLocaleString(),padX-10,padY-5); ctx.fillText(max.toLocaleString(),padX-10,padY+10);
+    }
+    c.querySelector('#ci-calc').onclick=calc; calc();
+  }
+});
+
+// ─── Loan Installment (Fixed/Reducing) ───
+registerTool({
+  id: 'fin-installment',
+  name: 'محاسبه اقساط', name_en: 'Installment Calculator',
+  icon: '💳',
+  category: 'financial', keywords: ['قسط','اقساط','وام','loan','installment','ثابت','کاهنده'],
+  desc: 'محاسبه اقساط وام به دو روش ثابت و کاهنده', desc_en: 'Loan installment: fixed and reducing balance methods',
+  render: function(c) {
+    c.innerHTML = '<div class="card"><div class="input-group"><label>مبلغ وام (تومان):</label><input type="number" id="ln-amount" value="100000000" style="direction:ltr;text-align:right"></div><div class="inline-inputs"><div class="input-group"><label>نرخ سود سالانه (%):</label><input type="number" id="ln-rate" value="18" style="direction:ltr;text-align:right"></div><div class="input-group"><label>مدت (ماه):</label><input type="number" id="ln-months" value="36" style="direction:ltr;text-align:right"></div></div><div class="input-group"><label>نوع بازپرداخت:</label><select id="ln-type"><option value="fixed">ثابت (قسط مساوی)</option><option value="reducing">کاهنده (سود روی مانده)</option></select></div><button class="btn btn-primary" id="ln-calc" style="width:100%">💳 محاسبه</button><div id="ln-result" class="result"></div></div>';
+    c.querySelector('#ln-calc').onclick = function() {
+      var A=parseFloat(c.querySelector('#ln-amount').value)||0, r=(parseFloat(c.querySelector('#ln-rate').value)||0)/1200, n=parseInt(c.querySelector('#ln-months').value)||0, type=c.querySelector('#ln-type').value;
+      var res=c.querySelector('#ln-result'); if (A<=0||n<=0) { res.classList.remove('show'); return; }
+      var html='';
+      if (type==='fixed') {
+        var installment = A * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1);
+        var total = installment * n;
+        html = '<div class="loan-summary"><div class="loan-box"><div class="num">'+Math.round(installment).toLocaleString('fa-IR')+'</div><div class="lbl">💰 قسط ماهانه</div></div><div class="loan-box"><div class="num">'+Math.round(total).toLocaleString('fa-IR')+'</div><div class="lbl">📊 جمع پرداختی</div></div><div class="loan-box"><div class="num" style="color:var(--danger)">'+Math.round(total-A).toLocaleString('fa-IR')+'</div><div class="lbl">💸 کل سود</div></div><div class="loan-box"><div class="num">% '+Math.round((total-A)/A*100)+'</div><div class="lbl">نسبت سود</div></div></div>';
+      } else {
+        var principalPayment = A / n;
+        var firstInst = principalPayment + (A * r);
+        var lastInst = principalPayment + (principalPayment * r);
+        var totalReducing = 0;
+        for (var i=0;i<n;i++) totalReducing += principalPayment + ((A - principalPayment*i) * r);
+        html = '<div class="loan-summary"><div class="loan-box"><div class="num">'+Math.round(firstInst).toLocaleString('fa-IR')+' ~ '+Math.round(lastInst).toLocaleString('fa-IR')+'</div><div class="lbl">💳 محدوده قسط</div></div><div class="loan-box"><div class="num">'+Math.round(totalReducing).toLocaleString('fa-IR')+'</div><div class="lbl">📊 جمع پرداختی</div></div><div class="loan-box"><div class="num" style="color:var(--danger)">'+Math.round(totalReducing-A).toLocaleString('fa-IR')+'</div><div class="lbl">💸 کل سود</div></div><div class="loan-box"><div class="num">% '+Math.round((totalReducing-A)/A*100)+'</div><div class="lbl">نسبت سود</div></div></div>';
+      }
+      res.innerHTML=html; res.classList.add('show');
+    };
+  }
+});
+
+// ─── Iran Inflation Calculator ───
+registerTool({
+  id: 'fin-inflation',
+  name: 'ماشین حساب تورم', name_en: 'Inflation Calculator',
+  icon: '💸',
+  category: 'financial', keywords: ['تورم','inflation','قیمت','ارزش','پول'],
+  desc: 'محاسبه ارزش پول در طول زمان با نرخ تورم', desc_en: 'Calculate money value over time with inflation rate',
+  render: function(c) {
+    c.innerHTML = '<div class="card"><div class="input-group"><label>مبلغ فعلی (تومان):</label><input type="number" id="if-amount" value="10000000" style="direction:ltr;text-align:right"></div><div class="inline-inputs"><div class="input-group"><label>نرخ تورم سالانه (%):</label><input type="number" id="if-rate" value="40" style="direction:ltr;text-align:right"></div><div class="input-group"><label>تعداد سال:</label><input type="number" id="if-years" value="5" style="direction:ltr;text-align:right"></div></div><button class="btn btn-primary" id="if-calc" style="width:100%">💸 محاسبه</button><div id="if-result" class="result"></div></div>';
+    c.querySelector('#if-calc').onclick = function() {
+      var A=parseFloat(c.querySelector('#if-amount').value)||0, r=(parseFloat(c.querySelector('#if-rate').value)||0)/100, n=parseInt(c.querySelector('#if-years').value)||0;
+      var res=c.querySelector('#if-result'); if (A<=0||n<=0) { res.classList.remove('show'); return; }
+      var future = A * Math.pow(1+r, n);
+      var past = A / Math.pow(1+r, n);
+      res.innerHTML = '<div class="loan-summary"><div class="loan-box"><div class="num">'+Math.round(future).toLocaleString('fa-IR')+'</div><div class="lbl">📈 ارزش آینده ('+n+' سال)</div></div><div class="loan-box"><div class="num">'+Math.round(past).toLocaleString('fa-IR')+'</div><div class="lbl">📉 ارزش '+n+' سال قبل</div></div><div class="loan-box"><div class="num">% '+Math.round((Math.pow(1+r,n)-1)*100)+'</div><div class="lbl">تورم تجمعی</div></div><div class="loan-box"><div class="num">'+(n>0?Math.round(A/Math.pow(1+r,n)*100)/100:0).toLocaleString('fa-IR')+'</div><div class="lbl">قدرت خرید امروز</div></div></div>'+
+        '<div class="row"><span class="label">📊 اگر امروز '+A.toLocaleString('fa-IR')+' تومان داشته باشید:</span></div>'+
+        '<div class="row"><span class="label">🔼 '+n+' سال دیگه معادل</span><span class="value">'+Math.round(future).toLocaleString('fa-IR')+' تومان</span></div>'+
+        '<div class="row"><span class="label">🔽 قدرت خریدش معادل</span><span class="value">'+Math.round(past).toLocaleString('fa-IR')+' تومان امروز</span></div>';
+      res.classList.add('show');
+    };
+  }
+});
+
+// ─── Salary & Social Security ───
+registerTool({
+  id: 'fin-salary',
+  name: 'محاسبه حقوق و تأمین اجتماعی', name_en: 'Salary & Social Security',
+  icon: '💼',
+  category: 'financial', keywords: ['حقوق','salary','بیمه','تأمین','اجتماعی','مالیات','کسورات'],
+  desc: 'محاسبه حقوق خالص با کسورات بیمه و مالیات', desc_en: 'Net salary after insurance and tax deductions',
+  render: function(c) {
+    c.innerHTML = '<div class="card"><div class="input-group"><label>حقوق ناخالص ماهانه (تومان):</label><input type="number" id="sl-gross" value="15000000" style="direction:ltr;text-align:right;font-size:1.1rem"></div><div class="inline-inputs"><div class="input-group"><label>سهم بیمه (%):</label><input type="number" id="sl-insurance" value="7" style="direction:ltr;text-align:right"></div><div class="input-group"><label>نرخ مالیات (%):</label><input type="number" id="sl-tax" value="10" style="direction:ltr;text-align:right"></div></div><div class="input-group"><label>معافیت مالیاتی (تومان):</label><input type="number" id="sl-exempt" value="10000000" style="direction:ltr;text-align:right"></div><button class="btn btn-primary" id="sl-calc" style="width:100%">💼 محاسبه حقوق خالص</button><div id="sl-result" class="result"></div></div>';
+    c.querySelector('#sl-calc').onclick = function() {
+      var gross=parseFloat(c.querySelector('#sl-gross').value)||0, insPct=(parseFloat(c.querySelector('#sl-insurance').value)||0)/100, taxPct=(parseFloat(c.querySelector('#sl-tax').value)||0)/100, exempt=parseFloat(c.querySelector('#sl-exempt').value)||0;
+      var res=c.querySelector('#sl-result'); if (gross<=0) { res.classList.remove('show'); return; }
+      var insurance = gross * insPct;
+      var afterIns = gross - insurance;
+      var taxable = Math.max(0, afterIns - exempt);
+      var tax = taxable * taxPct;
+      var net = afterIns - tax;
+      res.innerHTML = '<div class="loan-summary"><div class="loan-box"><div class="num">'+Math.round(net).toLocaleString('fa-IR')+'</div><div class="lbl">💰 خالص دریافتی</div></div><div class="loan-box"><div class="num" style="color:var(--danger)">'+Math.round(insurance+tax).toLocaleString('fa-IR')+'</div><div class="lbl">📉 کل کسورات</div></div><div class="loan-box"><div class="num">'+Math.round(insurance).toLocaleString('fa-IR')+'</div><div class="lbl">🏥 بیمه</div></div><div class="loan-box"><div class="num">'+Math.round(tax).toLocaleString('fa-IR')+'</div><div class="lbl">📋 مالیات</div></div></div>'+
+        '<div class="row"><span class="label">حقوق ناخالص:</span><span class="value">'+Math.round(gross).toLocaleString('fa-IR')+' تومان</span></div>'+
+        '<div class="row"><span class="label">کسور بیمه ('+(insPct*100)+'%):</span><span class="value" style="color:var(--danger)">- '+Math.round(insurance).toLocaleString('fa-IR')+'</span></div>'+
+        '<div class="row"><span class="label">درآمد مشمول مالیات:</span><span class="value">'+Math.round(taxable).toLocaleString('fa-IR')+'</span></div>'+
+        '<div class="row"><span class="label">مالیات ('+(taxPct*100)+'%):</span><span class="value" style="color:var(--danger)">- '+Math.round(tax).toLocaleString('fa-IR')+'</span></div>'+
+        '<div class="row" style="border-top:2px solid var(--accent);padding-top:8px"><span class="label">💎 حقوق خالص:</span><span class="value" style="font-size:1.2rem;color:var(--success)">'+Math.round(net).toLocaleString('fa-IR')+' تومان</span></div>';
+      res.classList.add('show');
+    };
+  }
+});
+
+// ─── Interest Rate Converter ───
+registerTool({
+  id: 'fin-rateconv',
+  name: 'تبدیل نرخ بهره', name_en: 'Interest Rate Converter',
+  icon: '🔄',
+  category: 'financial', keywords: ['نرخ','بهره','rate','interest','سالانه','ماهانه','روزانه'],
+  desc: 'تبدیل نرخ بهره سالانه، ماهانه و روزانه', desc_en: 'Convert between annual, monthly, and daily interest rates',
+  render: function(c) {
+    c.innerHTML = '<div class="card"><div class="inline-inputs"><div class="input-group"><label>نرخ (%):</label><input type="number" id="ir-val" value="24" step="any" style="direction:ltr;text-align:right;font-size:1.1rem"></div><div class="input-group"><label>از:</label><select id="ir-from"><option value="annual">سالانه</option><option value="monthly">ماهانه</option><option value="daily">روزانه</option></select></div></div><div id="ir-result" style="margin-top:10px;display:grid;gap:8px"><div class="row"><span class="label">📅 سالانه مؤثر:</span><span class="value" id="ir-annual">—</span></div><div class="row"><span class="label">📆 ماهانه:</span><span class="value" id="ir-monthly">—</span></div><div class="row"><span class="label">☀️ روزانه:</span><span class="value" id="ir-daily">—</span></div><div class="row"><span class="label">🔄 پیوسته:</span><span class="value" id="ir-cont">—</span></div></div></div>';
+    function calc() {
+      var v = parseFloat(c.querySelector('#ir-val').value)||0;
+      var from = c.querySelector('#ir-from').value;
+      var annual;
+      if (from==='annual') annual=v/100;
+      else if (from==='monthly') annual=Math.pow(1+v/1200,12)-1;
+      else annual=Math.pow(1+v/36500,365)-1;
+      var monthly=Math.pow(1+annual,1/12)-1;
+      var daily=Math.pow(1+annual,1/365)-1;
+      var continuous=Math.log(1+annual);
+      c.querySelector('#ir-annual').textContent='% '+(annual*100).toFixed(4);
+      c.querySelector('#ir-monthly').textContent='% '+(monthly*100).toFixed(4);
+      c.querySelector('#ir-daily').textContent='% '+(daily*100).toFixed(4);
+      c.querySelector('#ir-cont').textContent='% '+(continuous*100).toFixed(4);
+    }
+    c.querySelector('#ir-val').oninput=calc;
+    c.querySelector('#ir-from').onchange=calc;
+    calc();
+  }
+});
 
   </script>
 
