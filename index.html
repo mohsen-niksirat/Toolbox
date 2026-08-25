@@ -14444,6 +14444,128 @@ registerTool({
   }
 });
 
+// ─── Generic Converter Factory ───
+function makeConverter(id, name, nameEn, icon, unitList, rateMap, baseUnit) {
+  registerTool({
+    id: id, name: name, name_en: nameEn||name, icon: icon, category: 'converters',
+    keywords: [name, 'تبدیل', 'convert'].concat(unitList.map(function(u){return u.n;})),
+    desc: 'تبدیل ' + name, desc_en: 'Convert '+name,
+    render: function(c) {
+      c.innerHTML = '<div class="card"><div class="input-group"><label>مقدار:</label><input type="number" id="cv-val" value="1" step="any" style="direction:ltr;text-align:right;font-size:1.1rem"></div><div class="input-group"><label>از واحد:</label><select id="cv-from">'+unitList.map(function(u){return '<option value="'+u.n+'">'+u.n+' - '+u.name+'</option>';}).join('')+'</select></div><button class="btn btn-primary" id="cv-convert" style="width:100%">🔄 تبدیل</button><div id="cv-result" style="margin-top:12px">'+unitList.map(function(u){return '<div class="row"><span>'+u.n+'</span><span id="cv-'+u.n.replace(/[\/\s]/g,'_')+'" style="font-weight:700;direction:ltr">-</span></div>';}).join('')+'</div></div>';
+      function calc(){var val=parseFloat(c.querySelector('#cv-val').value)||0;var from=c.querySelector('#cv-from').value;var base=val*rateMap[from];unitList.forEach(function(u){var el=c.querySelector('#cv-'+u.n.replace(/[\/\s]/g,'_'));if(el)el.textContent=(base/rateMap[u.n]).toFixed(6);});}
+      c.querySelector('#cv-convert').onclick=calc;c.querySelector('#cv-val').oninput=calc;c.querySelector('#cv-from').onchange=calc;
+    }
+  });
+}
+
+// ─── 5 New Converters ───
+makeConverter('conv-pressure','مبدل فشار','Pressure Converter','🫧',[
+  {n:'Pa',name:'پاسکال'},{n:'kPa',name:'کیلوپاسکال'},{n:'bar',name:'بار'},{n:'atm',name:'اتمسفر'},{n:'psi',name:'پوند بر اینچ'},{n:'mmHg',name:'میلیمتر جیوه'}
+],{Pa:1,kPa:1000,bar:100000,atm:101325,psi:6894.76,mmHg:133.322},'Pa');
+
+makeConverter('conv-energy','مبدل انرژی','Energy Converter','⚡',[
+  {n:'J',name:'ژول'},{n:'kJ',name:'کیلوژول'},{n:'cal',name:'کالری'},{n:'kcal',name:'کیلوکالری'},{n:'Wh',name:'وات‌ساعت'},{n:'kWh',name:'کیلووات‌ساعت'},{n:'BTU',name:'BTU'},{n:'eV',name:'الکترون‌ولت'}
+],{J:1,kJ:1000,cal:4.184,kcal:4184,Wh:3600,kWh:3600000,BTU:1055.06,eV:1.602176634e-19},'J');
+
+makeConverter('conv-angle','مبدل زاویه','Angle Converter','📐',[
+  {n:'deg',name:'درجه'},{n:'rad',name:'رادیان'},{n:'grad',name:'گراد'},{n:'arcmin',name:'دقیقه قوسی'},{n:'arcsec',name:'ثانیه قوسی'},{n:'turn',name:'دور کامل'}
+],{deg:1,rad:57.2957795,grad:0.9,arcmin:1/60,arcsec:1/3600,turn:360},'deg');
+
+makeConverter('conv-time','مبدل زمان','Time Converter','⏰',[
+  {n:'ms',name:'میلی‌ثانیه'},{n:'s',name:'ثانیه'},{n:'min',name:'دقیقه'},{n:'h',name:'ساعت'},{n:'day',name:'روز'},{n:'week',name:'هفته'},{n:'month',name:'ماه (۳۰ روز)'},{n:'year',name:'سال (۳۶۵ روز)'}
+],{ms:0.001,s:1,min:60,h:3600,day:86400,week:604800,month:2592000,year:31536000},'s');
+
+makeConverter('conv-accel','مبدل شتاب','Acceleration Converter','🚄',[
+  {n:'m/s2',name:'متر/ثانیه²'},{n:'g',name:'شتاب گرانش (g)'},{n:'ft/s2',name:'فوت/ثانیه²'},{n:'in/s2',name:'اینچ/ثانیه²'},{n:'Gal',name:'گال'}
+],{'m/s2':1,g:9.80665,'ft/s2':0.3048,'in/s2':0.0254,Gal:0.01},'m/s2');
+
+  </script>
+
+  <script>
+// ═══════════════════════════════════════════
+// Toolbox Pro — Split View Support
+// ═══════════════════════════════════════════
+var _splitMode = false;
+var _splitToolA = null, _splitToolB = null;
+
+window.__toggleSplitView = function(toolId) {
+  if (!_splitMode) {
+    _splitToolA = toolId;
+    _splitToolB = null;
+    _splitMode = true;
+    renderSplitView();
+  } else if (!_splitToolB) {
+    _splitToolB = toolId;
+    renderSplitView();
+  } else {
+    _splitMode = false;
+    _splitToolA = null;
+    _splitToolB = null;
+    showHome();
+  }
+};
+
+function renderSplitView() {
+  homePage.style.display = 'none';
+  toolPage.style.display = 'block';
+  var tA = _splitToolA ? getTool(_splitToolA) : null;
+  var tB = _splitToolB ? getTool(_splitToolB) : null;
+  var hasSecond = !!tB;
+  pageTitle.textContent = (tA ? tA.name : '') + (tB ? ' ⏸️ ' + tB.name : '') + ' 🔀';
+  toolContent.innerHTML = '';
+  var row = document.createElement('div');
+  row.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
+  var left = document.createElement('div');
+  left.style.cssText = 'flex:1;min-width:280px;border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--glass);position:relative';
+  if (tA) {
+    left.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-weight:800;font-size:.85rem">'+tA.icon+' '+tA.name+'</span><button class="btn" style="font-size:.65rem;padding:4px 8px" onclick="window.__toggleSplitView()">✕</button></div>';
+    var dA = document.createElement('div');
+    tA.render(dA);
+    left.appendChild(dA);
+  }
+  row.appendChild(left);
+  if (hasSecond) {
+    var right = document.createElement('div');
+    right.style.cssText = 'flex:1;min-width:280px;border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--glass);position:relative';
+    right.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-weight:800;font-size:.85rem">'+tB.icon+' '+tB.name+'</span><button class="btn" style="font-size:.65rem;padding:4px 8px" onclick="goHome()">✕</button></div>';
+    var dB = document.createElement('div');
+    tB.render(dB);
+    right.appendChild(dB);
+    row.appendChild(right);
+  } else {
+    var hint = document.createElement('div');
+    hint.style.cssText = 'flex:1;min-width:280px;display:flex;align-items:center;justify-content:center;border:2px dashed var(--border);border-radius:12px;padding:24px;text-align:center;color:var(--text2);min-height:200px';
+    hint.innerHTML = '<div><div style="font-size:2rem;margin-bottom:8px">🔀</div><div style="font-weight:700;margin-bottom:4px">حالت مقایسه</div><div style="font-size:.8rem">ابزار دوم رو از منوی کناری انتخاب کنید<br>یا از دکمه مقایسه تو هر ابزار استفاده کنید</div></div>';
+    row.appendChild(hint);
+  }
+  toolContent.appendChild(row);
+}
+
+// ─── Add "Compare" button to tool pages ───
+var _origShowTool = showTool;
+showTool = function(toolId) {
+  if (_splitMode && !_splitToolB) {
+    _splitToolB = toolId;
+    renderSplitView();
+    return;
+  }
+  _origShowTool(toolId);
+  // Add split button to tool page
+  setTimeout(function() {
+    var existing = toolContent.querySelector('#__splitBtn');
+    if (existing) return;
+    var backBtn = toolContent.querySelector('.back-btn');
+    if (!backBtn) return;
+    var splitBtn = document.createElement('button');
+    splitBtn.id = '__splitBtn';
+    splitBtn.className = 'btn';
+    splitBtn.style.cssText = 'margin-right:8px;font-size:.8rem;padding:8px 14px';
+    splitBtn.textContent = '🔀 مقایسه';
+    splitBtn.onclick = function() { window.__toggleSplitView(toolId); };
+    backBtn.parentNode.insertBefore(splitBtn, backBtn);
+  }, 100);
+};
+
   </script>
 
   <script>
@@ -15131,27 +15253,45 @@ registerTool({
         console.log('[SW] Controller changed — new SW active');
       });
 
-      // ─── Notification API ───
-      if ('Notification' in window && Notification.permission === 'default') {
-        // Request notification permission after first interaction
-        var _notifRequested = false;
-        function requestNotifPermission() {
-          if (_notifRequested) return;
-          _notifRequested = true;
-          Notification.requestPermission().then(function(perm) {
-            if (perm === 'granted') {
-              console.log('[Notification] Permission granted');
-              // Register periodic sync if available
-              if (_swRegistration && 'periodicSync' in _swRegistration) {
-                _swRegistration.periodicSync.register('update-cache', { minInterval: 24 * 60 * 60 * 1000 }).catch(function() {});
-              }
-            }
-          }).catch(function() {});
+      // ─── Enhanced Notification API (daily reminder, update alerts) ───
+      var _notifGranted = false, _notifRequested = false;
+      function requestNotifPermission() {
+        if (_notifRequested) return; _notifRequested = true;
+        if (!('Notification' in window)) return;
+        Notification.requestPermission().then(function(perm) {
+          if (perm === 'granted') { _notifGranted = true; scheduleDailyReminder(); scheduleUpdateCheck(); }
+        }).catch(function() {});
+      }
+      function sendNotification(title, body) {
+        if (!_notifGranted && Notification.permission !== 'granted') return;
+        try { new Notification(title, { body: body, icon: './icons/icon-192.png', badge: './icons/icon-96.png', tag: 'toolbox', requireInteraction: false, vibrate: [200,100,200] }); } catch(e) {}
+      }
+      function scheduleDailyReminder() {
+        var lastReminder = lsGet('last_reminder_date', '');
+        var today = new Date().toDateString();
+        if (lastReminder === today) return;
+        lsSet('last_reminder_date', today);
+        var allTools = Array.from(tools.values());
+        var pick = allTools[Math.floor(Math.random()*allTools.length)];
+        if (pick) {
+          setTimeout(function() { sendNotification('🧰 '+_toolName(pick), 'امروز این ابزار رو امتحان کن! '+(pick.desc_en||pick.desc||'')); }, 3600000);
         }
-        // Request on first click/tap
+      }
+      function scheduleUpdateCheck() {
+        setInterval(function() {
+          if (_swRegistration) _swRegistration.update().catch(function() {});
+        }, 3600000);
+      }
+      // Auto-notify on version change
+      var _lastVersion = lsGet('app_version', '1.2.0');
+      if (_lastVersion !== '1.2.1') {
+        lsSet('app_version', '1.2.1');
+        setTimeout(function() { sendNotification('🧰 نسخه 1.2.1', 'ابزارهای جدید: مقایسه همزمان، مبدل‌های فشار/انرژی/زاویه/زمان/شتاب، نوتیفیکیشن روزانه'); }, 5000);
+      }
+      if (Notification.permission === 'granted') { _notifGranted = true; scheduleDailyReminder(); scheduleUpdateCheck(); }
+      else if (Notification.permission === 'default') {
         document.addEventListener('click', requestNotifPermission, { once: true });
         document.addEventListener('touchstart', requestNotifPermission, { once: true });
-        // Also try after 30 seconds if user hasn't interacted
         setTimeout(requestNotifPermission, 30000);
       }
 
