@@ -7,7 +7,22 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="تولباکس">
-  <meta name="description" content="۱۰۰+ ابزار کاربردی در یکجا">
+  <meta name="description" content="۱۳۸+ ابزار کاربردی در یک اپلیکیشن وب — ماشین‌حساب، مبدل ارز، بازی، سلامت، ابزار متن و کد، PWA و آفلاین">
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="🧰 جعبه ابزار حرفه‌ای — ۱۳۸+ ابزار کاربردی">
+  <meta property="og:description" content="ماشین‌حساب علمی، تبدیل ارز، ۲۱ بازی، سلامت، ابزار متن و کد — همه در یک اپلیکیشن وب، قابل نصب روی گوشی و استفاده آفلاین">
+  <meta property="og:image" content="https://mohsen-niksirat.github.io/Toolbox/icons/icon-512.png">
+  <meta property="og:image:width" content="512">
+  <meta property="og:image:height" content="512">
+  <meta property="og:url" content="https://mohsen-niksirat.github.io/Toolbox/">
+  <meta property="og:locale" content="fa_IR">
+  <meta property="og:site_name" content="تولباکس">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="🧰 جعبه ابزار حرفه‌ای — ۱۳۸+ ابزار کاربردی">
+  <meta name="twitter:description" content="ماشین‌حساب، تبدیل ارز، بازی، سلامت، ابزار متن — همه در یک اپ PWA آفلاین">
+  <meta name="twitter:image" content="https://mohsen-niksirat.github.io/Toolbox/icons/icon-192.png">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojNmM1Y2U3Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6I2EyOWJmZSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSI4MCIgZmlsbD0idXJsKCNnKSIvPgogIDx0ZXh0IHg9IjI1NiIgeT0iMzQwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjI4MCIgZmlsbD0id2hpdGUiPvCfp7A8L3RleHQ+Cjwvc3ZnPg==">
   <link rel="apple-touch-icon" href="data:image/png;base64,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">
   <link rel="manifest" href="./manifest.json">
@@ -4269,8 +4284,28 @@ function renderChess(c) {
       <div class="game-score-item"><div class="game-score-num" id="chessL">0</div><div class="game-score-label">برد سیاه</div></div>
     </div>
     <div class="chess-grid" style="display:grid;grid-template-columns:repeat(8,1fr);gap:1px;max-width:400px;margin:0 auto;border:2px solid var(--border);border-radius:6px;overflow:hidden"></div>
-    <div style="text-align:center;margin-top:10px"><button class="btn btn-primary" id="chessNew">بازی جدید</button></div>`;
+    <div style="display:flex;gap:8px;justify-content:center;margin-top:10px">
+      <button class="btn btn-primary" id="chessNew">بازی جدید</button>
+      <button class="btn" id="chessSave">💾 ذخیره</button>
+      <button class="btn" id="chessLoad">📂 بارگیری</button>
+    </div>`;
   c.querySelector('#chessNew').onclick=init;
+  c.querySelector('#chessSave').onclick = function() {
+    var state = { board: board, turn: turn, scores: scores };
+    dbPut('kv', 'chess_save', JSON.stringify(state)).then(function() {
+      showToast('بازی ذخیره شد ✅');
+    }).catch(function() { showToast('خطا در ذخیره ❌'); });
+  };
+  c.querySelector('#chessLoad').onclick = function() {
+    dbGet('kv', 'chess_save').then(function(v) {
+      if (!v) { showToast('بازی ذخیره‌شده‌ای یافت نشد ⚠️'); return; }
+      var state = JSON.parse(v);
+      board = state.board; turn = state.turn; scores = state.scores;
+      selected = null; validMoves = []; gameOver = false;
+      render();
+      showToast('بازی بارگیری شد ✅');
+    }).catch(function() { showToast('خطا در بارگیری ❌'); });
+  };
   init();
 }
 
@@ -4416,6 +4451,26 @@ function renderTetris(c) {
   c.querySelector('#tetRotate').onclick=()=>{rotate();render();};
   c.querySelector('#tetDrop').onclick=hardDrop;
   c.querySelector('#tetNew').onclick=init;
+
+  // ─── Touch/Swipe on grid ───
+  var tsX=0, tsY=0;
+  c.querySelector('#tetGrid').addEventListener('touchstart', function(e) {
+    if (gameOver || paused) return;
+    tsX = e.touches[0].clientX; tsY = e.touches[0].clientY;
+    e.preventDefault();
+  }, {passive: false});
+  c.querySelector('#tetGrid').addEventListener('touchend', function(e) {
+    if (gameOver || paused) return;
+    var dx = (e.changedTouches[0].clientX - tsX);
+    var dy = (e.changedTouches[0].clientY - tsY);
+    var absDx = Math.abs(dx), absDy = Math.abs(dy);
+    if (absDx < 20 && absDy < 20) { rotate(); render(); return; }
+    if (absDy > absDx && dy > 30) { hardDrop(); render(); return; }
+    if (absDy > absDx && dy < -30) { rotate(); render(); return; }
+    if (absDx > absDy && dx > 30) { if (!collides(piece, pieceX+1, pieceY)) pieceX++; render(); return; }
+    if (absDx > absDy && dx < -30) { if (!collides(piece, pieceX-1, pieceY)) pieceX--; render(); return; }
+    e.preventDefault();
+  }, {passive: false});
   init();
 }
 
@@ -4962,6 +5017,190 @@ function renderPong(c) {
   init();
 }
 
+// ─── 22. Maze Generator ───
+function renderMaze(c) {
+  var SIZE = 15, WALL = 1, PATH = 0;
+  var grid, playerPos, exitPos, solved;
+  function init() {
+    SIZE = 15; grid = []; solved = false;
+    // Generate maze using recursive backtracking
+    for (var r = 0; r < SIZE; r++) { grid[r] = []; for (var col = 0; col < SIZE; col++) grid[r][col] = WALL; }
+    function carve(r, col) {
+      grid[r][col] = PATH;
+      var dirs = [[-2,0],[2,0],[0,-2],[0,2]];
+      // Shuffle dirs
+      for (var i = dirs.length-1; i > 0; i--) { var j = Math.floor(Math.random()*(i+1)); var t = dirs[i]; dirs[i] = dirs[j]; dirs[j] = t; }
+      for (var d = 0; d < dirs.length; d++) {
+        var nr = r + dirs[d][0], nc = col + dirs[d][1];
+        var mr = r + dirs[d][0]/2, mc = col + dirs[d][1]/2;
+        if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && grid[nr][nc] === WALL) {
+          grid[mr][mc] = PATH;
+          carve(nr, nc);
+        }
+      }
+    }
+    carve(0, 0);
+    // Ensure entrance and exit are open
+    grid[0][0] = PATH; grid[SIZE-1][SIZE-1] = PATH;
+    if (SIZE > 1) { grid[0][1] = PATH; grid[SIZE-1][SIZE-2] = PATH; }
+    playerPos = {r:0, c:0};
+    exitPos = {r:SIZE-1, c:SIZE-1};
+    render();
+  }
+  function move(dr, dc) {
+    if (solved) return;
+    var nr = playerPos.r + dr, nc = playerPos.c + dc;
+    if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && grid[nr][nc] === PATH) {
+      playerPos = {r:nr, c:nc};
+    }
+    if (playerPos.r === exitPos.r && playerPos.c === exitPos.c) {
+      solved = true; showToast('🎉 راه خروج را پیدا کردی!');
+    }
+    render();
+  }
+  function render() {
+    var html = '<div class="game-score"><div class="game-score-item"><div class="game-score-num">'+SIZE+'×'+SIZE+'</div><div class="game-score-label">ابعاد</div></div>'+
+      '<div class="game-score-item"><div class="game-score-num">'+(solved?'🎉':'🧭')+'</div><div class="game-score-label">'+(solved?'تمام!':'درحال حرکت')+'</div></div></div>';
+    html += '<div id="mazeGrid" style="display:grid;grid-template-columns:repeat('+SIZE+',1fr);gap:0;max-width:320px;margin:8px auto;border:2px solid var(--border);border-radius:6px;overflow:hidden;touch-action:none">';
+    for (var r = 0; r < SIZE; r++) for (var col = 0; col < SIZE; col++) {
+      var bg = 'var(--bg)';
+      if (grid[r][col] === WALL) bg = '#2d3047';
+      else if (r === exitPos.r && col === exitPos.c) bg = '#00b894';
+      if (r === playerPos.r && col === playerPos.c) bg = '#6c5ce7';
+      html += '<div style="aspect-ratio:1;background:'+bg+';transition:background .15s">'+(r===playerPos.r&&col===playerPos.c?'<span style="display:flex;align-items:center;justify-content:center;height:100%;font-size:.7rem">🧑</span>':'')+'</div>';
+    }
+    html += '</div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;max-width:180px;margin:8px auto">'+
+      '<div></div><button class="snake-btn" id="mzUp">▲</button><div></div>'+
+      '<button class="snake-btn" id="mzLeft">◀</button><button class="snake-btn" id="mzDown">▼</button><button class="snake-btn" id="mzRight">▶</button>'+
+    '</div>';
+    html += '<div style="text-align:center;margin-top:8px;display:flex;gap:8px;justify-content:center"><button class="btn btn-primary" id="mzNew">🔄 ماز جدید</button>'+
+      '<select id="mzSize" style="width:auto;padding:8px 12px"><option value="10">۱۰×۱۰</option><option value="15" selected>۱۵×۱۵</option><option value="20">۲۰×۲۰</option><option value="25">۲۵×۲۵</option></select></div>';
+    c.innerHTML = html;
+
+    c.querySelector('#mzUp').onclick = function() { move(-1, 0); };
+    c.querySelector('#mzDown').onclick = function() { move(1, 0); };
+    c.querySelector('#mzLeft').onclick = function() { move(0, -1); };
+    c.querySelector('#mzRight').onclick = function() { move(0, 1); };
+    c.querySelector('#mzNew').onclick = function() { SIZE = parseInt(c.querySelector('#mzSize').value)||15; if (SIZE%2===0) SIZE++; init(); };
+
+    // Swipe on maze
+    var tsX = 0, tsY = 0;
+    var mg = c.querySelector('#mazeGrid');
+    if (mg) {
+      mg.addEventListener('touchstart', function(e) { tsX = e.touches[0].clientX; tsY = e.touches[0].clientY; e.preventDefault(); }, {passive:false});
+      mg.addEventListener('touchend', function(e) {
+        var dx = (e.changedTouches[0].clientX-tsX), dy = (e.changedTouches[0].clientY-tsY);
+        var adx=Math.abs(dx), ady=Math.abs(dy);
+        if (adx>ady&&dx>20) move(0,1);
+        else if (adx>ady&&dx<-20) move(0,-1);
+        else if (ady>adx&&dy>20) move(1,0);
+        else if (ady>adx&&dy<-20) move(-1,0);
+        e.preventDefault();
+      }, {passive:false});
+    }
+
+    // Keyboard
+    document.addEventListener('keydown', function h(e) {
+      if (!c.isConnected) { document.removeEventListener('keydown', h); return; }
+      if (e.key==='ArrowUp') { move(-1,0); e.preventDefault(); }
+      if (e.key==='ArrowDown') { move(1,0); e.preventDefault(); }
+      if (e.key==='ArrowLeft') { move(0,-1); e.preventDefault(); }
+      if (e.key==='ArrowRight') { move(0,1); e.preventDefault(); }
+    });
+  }
+  init();
+}
+
+// ─── 23. Word Guess (English) ───
+function renderWordGuess(c) {
+  var dictionary = ['chair','table','house','phone','water','mountain','river','ocean','forest','garden','flower','window','mirror','pencil','paper','school','music','dance','smile','happy','light','dark','heart','brain','tiger','eagle','snake','horse','sheep','clock','stone','cloud','storm','winter','summer','bread','sugar','coffee','green','black','white','crown','queen','magic','gold','silver','peace','space','world','dream','story','angel','devil','hungry','sleepy','silent','bright','shadow','castle','bridge','island','desert','candle','butterfly','diamond','rainbow','sunset','thunder','kitchen','pillow','wallet','bottle','button','pocket','helmet','spider','planet','pirate','rocket','circle','square','silver','copper','cotton','velvet','marble','rubber','plastic','forest','orange','purple','banana','grapes','cheese','rabbit','monkey','parrot','penguin','dragon','wizard','knight','prince','forest','basket','hammer','ladder','mirror','needle','pillow','candle','bucket','carpet','dagger','shield','armour','temple','prison','garden'];
+  var word, guesses, maxGuesses, won, lost, score, highScore;
+  function init() {
+    word = dictionary[Math.floor(Math.random()*dictionary.length)];
+    guesses = []; maxGuesses = 6; won = false; lost = false;
+    highScore = parseInt(lsGet('wordguess_high',0))||0;
+    score = 0;
+    c.querySelector('#wgHigh').textContent = highScore;
+    render();
+  }
+  function guess(letter) {
+    letter = letter.toLowerCase();
+    if (guesses.indexOf(letter) >= 0) { showToast('این حرف قبلاً زده شده'); return; }
+    guesses.push(letter);
+    var wrong = guesses.filter(function(g) { return word.indexOf(g) < 0; });
+    if (wrong.length >= maxGuesses) { lost = true; showToast('باختی! 😢 کلمه: ' + word); }
+    var allFound = true;
+    for (var i = 0; i < word.length; i++) { if (guesses.indexOf(word[i]) < 0) allFound = false; }
+    if (allFound) {
+      won = true;
+      score = Math.max(1, maxGuesses - wrong.length + 1) * 10;
+      var newHigh = Math.max(highScore, score);
+      if (newHigh > highScore) { highScore = newHigh; lsSet('wordguess_high', highScore); }
+      showToast('🎉 برنده شدی! امتیاز: ' + score);
+    }
+    render();
+  }
+  function render() {
+    var wrong = guesses.filter(function(g) { return word.indexOf(g) < 0; });
+    var html = '<div class="game-score">'+
+      '<div class="game-score-item"><div class="game-score-num">'+(won?'🎉':lost?'😵':(maxGuesses-wrong.length))+'</div><div class="game-score-label">'+('فرصت باقی‌مانده')+'</div></div>'+
+      '<div class="game-score-item"><div class="game-score-num">'+highScore+'</div><div class="game-score-label">بهترین امتیاز</div></div>'+
+      '<div class="game-score-item"><div class="game-score-num">'+score+'</div><div class="game-score-label">امتیاز</div></div>'+
+    '</div>';
+
+    // Hangman drawing area
+    html += '<div style="text-align:center;font-size:.75rem;color:var(--text2);margin-bottom:8px;direction:ltr">'+
+      ' ❌ ' + wrong.slice(0, maxGuesses).join(' ')+'</div>';
+
+    // Word display
+    html += '<div class="hangman-display" style="font-size:2rem">';
+    for (var i = 0; i < word.length; i++) {
+      var ch = word[i];
+      var found = guesses.indexOf(ch) >= 0 || won || lost;
+      html += '<span style="margin:0 3px;'+(found?'color:var(--accent)':'color:var(--text2)')+'">'+(found ? ch.toUpperCase() : '_')+'</span>';
+    }
+    html += '</div>';
+
+    // Hint on loss
+    if (lost) html += '<div style="text-align:center;font-size:.9rem;font-weight:700;color:var(--danger);margin:8px 0">❌ کلمه: ' + word.toUpperCase() + '</div>';
+    if (won) html += '<div style="text-align:center;font-size:.9rem;font-weight:700;color:var(--success);margin:8px 0">🎉 آفرین!</div>';
+
+    // Keyboard
+    var disabled = won || lost;
+    html += '<div class="wordle-keyboard">';
+    var rows = ['qwertyuiop','asdfghjkl','zxcvbnm'];
+    for (var ri = 0; ri < rows.length; ri++) {
+      for (var ci = 0; ci < rows[ri].length; ci++) {
+        var l = rows[ri][ci];
+        var guessed = guesses.indexOf(l) >= 0;
+        var correct = word.indexOf(l) >= 0;
+        var cls = guessed ? (correct ? 'style="background:#00b894;color:#fff"' : 'style="background:#e17055;color:#fff"') : '';
+        html += '<button class="wordle-key" '+cls+' data-letter="'+l+'"'+(disabled?' disabled':'')+'>'+l.toUpperCase()+'</button>';
+      }
+      html += '<br>';
+    }
+    html += '</div>';
+    html += '<div style="text-align:center;margin-top:10px"><button class="btn btn-primary" id="wgNew">🔄 کلمه جدید</button></div>';
+
+    c.innerHTML = html;
+
+    c.querySelector('#wgNew').onclick = init;
+    c.querySelectorAll('.wordle-key').forEach(function(btn) {
+      btn.onclick = function() { guess(this.dataset.letter); };
+    });
+
+    // Keyboard handler
+    document.addEventListener('keydown', function h(e) {
+      if (!c.isConnected) { document.removeEventListener('keydown', h); return; }
+      if (disabled) return;
+      var key = e.key.toLowerCase();
+      if (key >= 'a' && key <= 'z') { guess(key); e.preventDefault(); }
+    });
+  }
+  init();
+}
+
 // ─── Register all games ───
 registerTools([
   { id:'game-snake', name:'مار', icon:'🐍', category:'games', keywords:['مار','snake','بازی'], desc:'بازی مار کلاسیک', render:renderSnake },
@@ -4985,6 +5224,8 @@ registerTools([
   { id:'game-breakout', name:'آجرشکن', icon:'🧱', category:'games', keywords:['آجر','شکن','breakout','brick','بازی'], desc:'بازی آجرشکن کلاسیک', render:renderBreakout },
   { id:'game-whackmole', name:'ضربه به موش', icon:'🐹', category:'games', keywords:['موش','ضربه','whack','mole','بازی'], desc:'بازی ضربه به موش', render:renderWhackMole },
   { id:'game-pong', name:'پونگ', icon:'🏓', category:'games', keywords:['پونگ','pong','بازی','AI'], desc:'بازی پونگ مقابل کامپیوتر', render:renderPong },
+  { id:'game-maze', name:'ماز (هزارتو)', icon:'🧭', category:'games', keywords:['ماز','هزارتو','maze','بازی','مسیر'], desc:'بازی هزارتو با تولید خودکار و سایز قابل تنظیم', render:renderMaze },
+  { id:'game-wordguess', name:'حدس کلمه انگلیسی', icon:'🔤', category:'games', keywords:['حدس','انگلیسی','کلمه','hangman','guess','word'], desc:'حدس کلمه انگلیسی با دیکشنری ۱۰۰+ کلمه', render:renderWordGuess },
 ]);
 
 
@@ -6725,10 +6966,295 @@ registerTool({
 
       document.getElementById('geo-shape').onchange = function() { current = shapes[parseInt(this.value)]; render(); };
       document.getElementById('geo-calc').onclick = calc;
-    }
-    render();
+    }    render();
   }
 });
+
+// ─── Settings Panel ───
+registerTool({
+  id: 'settings',
+  name: 'تنظیمات',
+  icon: '⚙️',
+  category: 'other',
+  keywords: ['تنظیمات', 'settings', 'فونت', 'سایز', 'export', 'import', 'بکاپ', 'پاک کردن', 'آمار'],
+  desc: 'تنظیمات فونت و سایز، export/import داده‌ها، پاک کردن و آمار',
+  render: function(container) {
+    var tabs = ['فونت', 'بکاپ', 'آمار'];
+    var active = 'فونت';
+    function renderPanel() {
+      container.innerHTML = '';
+      var tb = document.createElement('div'); tb.className = 'tabs';
+      tb.innerHTML = tabs.map(function(t) { return '<button class="tab'+(t===active?' active':'')+'" data-tab="'+t+'">'+(t==='فونت'?'🔤 ':'')+(t==='بکاپ'?'💾 ':'')+(t==='آمار'?'📊 ':'')+t+'</button>'; }).join('');
+
+      var p = document.createElement('div'); p.style.marginTop = '12px';
+      if (active === 'فونت') {
+        var fs = parseInt(lsGet('fontSize','16'))||16;
+        var ff = lsGet('fontFamily','system');
+        p.innerHTML = '<div class="card">'+
+          '<div class="input-group"><label>فونت:</label><select id="s-font">'+
+            '<option value="system"'+(ff==='system'?' selected':'')+'>System UI (پیش‌فرض)</option>'+
+            '<option value="vazir"'+(ff==='vazir'?' selected':'')+'>Vazirmatn (فارسی زیبا — آنلاین)</option>'+
+            '<option value="tahoma"'+(ff==='tahoma'?' selected':'')+'>Tahoma</option>'+
+            '<option value="irani"'+(ff==='irani'?' selected':'')+'>Iran Sans (آنلاین)</option>'+
+          '</select></div>'+
+          '<div class="input-group"><label>اندازه متن پایه: <span id="s-size-val">'+fs+'px</span></label>'+
+            '<input type="range" id="s-size" min="12" max="24" value="'+fs+'" step="1"></div>'+
+          '<button class="btn btn-primary" id="s-apply" style="width:100%;margin-top:8px">✅ اعمال</button>'+
+          '<p style="font-size:.7rem;color:var(--text2);margin-top:8px">تغییرات بلافاصله اعمال می‌شوند و در localStorage ذخیره می‌گردند.</p>'+
+          '<p style="font-size:.65rem;color:var(--text2);margin-top:4px">فونت‌های آنلاین فقط در حالت آنلاین در دسترس هستند.</p>'+
+        '</div>';
+      } else if (active === 'بکاپ') {
+        p.innerHTML = '<div class="card">'+
+          '<button class="btn btn-primary" id="s-export" style="width:100%;margin-bottom:8px">📤 Export (خروجی JSON)</button>'+
+          '<button class="btn" id="s-import-btn" style="width:100%;margin-bottom:8px">📥 Import (وارد کردن JSON)</button>'+
+          '<input type="file" id="s-import-file" accept=".json" style="display:none">'+
+          '<div class="row" style="margin:12px 0;border-top:1px solid var(--border);padding-top:12px"></div>'+
+          '<button class="btn btn-accent" id="s-clear" style="width:100%">🗑️ پاک کردن همه داده‌ها</button>'+
+          '<p style="font-size:.7rem;color:var(--danger);margin-top:6px">⚠️ این عمل تمام داده‌های ذخیره‌شده را حذف می‌کند و قابل بازگشت نیست!</p>'+
+          '<div id="s-msg" style="margin-top:8px;min-height:20px;font-size:.8rem;font-weight:700;text-align:center"></div>'+
+        '</div>';
+      } else {
+        p.innerHTML = '<div class="card"><div id="s-stats"><div class="loading"><div class="spinner"></div>در حال بارگذاری...</div></div></div>';
+        loadStats();
+      }
+
+      container.appendChild(tb); container.appendChild(p);
+
+      // Bind tab clicks
+      container.querySelectorAll('.tab').forEach(function(t) {
+        t.onclick = function() { active = this.dataset.tab; renderPanel(); };
+      });
+
+      // Font/size bindings
+      var sizeEl = container.querySelector('#s-size');
+      if (sizeEl) {
+        sizeEl.oninput = function() {
+          var v = this.value;
+          document.getElementById('s-size-val').textContent = v + 'px';
+          document.documentElement.style.fontSize = v + 'px';
+        };
+      }
+      var applyEl = container.querySelector('#s-apply');
+      if (applyEl) applyEl.onclick = function() {
+        var font = container.querySelector('#s-font').value;
+        var size = parseInt(container.querySelector('#s-size').value)||16;
+        lsSet('fontSize', size);
+        lsSet('fontFamily', font);
+        applyFont(font);
+        document.documentElement.style.fontSize = size + 'px';
+        showToast('تنظیمات ذخیره شد ✅');
+      };
+
+      // Export
+      var exportEl = container.querySelector('#s-export');
+      if (exportEl) exportEl.onclick = function() {
+        exportAllData().then(function(data) {
+          var blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement('a'); a.href = url; a.download = 'toolbox-backup-' + new Date().toISOString().slice(0,10) + '.json'; a.click();
+          URL.revokeObjectURL(url);
+          showToast('بکاپ با موفقیت ذخیره شد ✅');
+        }).catch(function() { showToast('خطا در export ❌'); });
+      };
+
+      // Import
+      var impBtn = container.querySelector('#s-import-btn');
+      var impFile = container.querySelector('#s-import-file');
+      if (impBtn && impFile) {
+        impBtn.onclick = function() { impFile.click(); };
+        impFile.onchange = function() {
+          var file = this.files[0];
+          if (!file) return;
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            try {
+              var data = JSON.parse(e.target.result);
+              importAllData(data).then(function() {
+                var msg = container.querySelector('#s-msg');
+                msg.textContent = '✅ داده‌ها با موفقیت وارد شدند. صفحه رفرش می‌شود...';
+                msg.style.color = 'var(--success)';
+                setTimeout(function() { location.reload(); }, 1500);
+              }).catch(function(err) {
+                var msg = container.querySelector('#s-msg');
+                msg.textContent = '❌ خطا در import: ' + (err.message||err);
+                msg.style.color = 'var(--danger)';
+              });
+            } catch(ex) {
+              var msg = container.querySelector('#s-msg');
+              msg.textContent = '❌ فایل JSON معتبر نیست';
+              msg.style.color = 'var(--danger)';
+            }
+          };
+          reader.readAsText(file);
+        };
+      }
+
+      // Clear
+      var clearEl = container.querySelector('#s-clear');
+      if (clearEl) clearEl.onclick = function() {
+        if (confirm('آیا مطمئن هستید؟ همه داده‌ها (یادداشت‌ها، رمزها، علاقه‌مندی‌ها، ابزارهای اخیر، تنظیمات) پاک می‌شوند!')) {
+          clearAllData().then(function() {
+            var msg = container.querySelector('#s-msg');
+            msg.textContent = '🗑️ همه داده‌ها پاک شدند. صفحه رفرش می‌شود...';
+            msg.style.color = 'var(--danger)';
+            setTimeout(function() { location.reload(); }, 1500);
+          });
+        }
+      };
+    }
+
+    function loadStats() {
+      Promise.all([
+        openDB().then(function(d) {
+          var stores = Array.from(d.objectStoreNames);
+          return Promise.all(stores.map(function(s) {
+            return new Promise(function(res) {
+              var tx = d.transaction(s, 'readonly');
+              var req = tx.objectStore(s).count();
+              req.onsuccess = function() { res({store:s, count:req.result}); };
+              req.onerror = function() { res({store:s, count:'?'}); };
+            });
+          }));
+        }),
+        Promise.resolve({
+          tools: getAllTools().length,
+          favorites: 0,
+          theme: document.documentElement.dataset.theme || 'dark',
+          fontSize: parseInt(lsGet('fontSize','16'))||16,
+          font: lsGet('fontFamily','system'),
+        })
+      ]).then(function(results) {
+        var dbStats = results[0];
+        var appStats = results[1];
+        getFavorites().then(function(favs) { appStats.favorites = favs.length; });
+        var statsDiv = container.querySelector('#s-stats');
+        if (!statsDiv) return;
+        var storageEstimate = 'محاسبه...';
+        if (navigator.storage && navigator.storage.estimate) {
+          navigator.storage.estimate().then(function(est) {
+            storageEstimate = Math.round((est.usage||0)/1024) + ' KB / ' + Math.round((est.quota||0)/1024/1024) + ' MB';
+            statsDiv.innerHTML = buildStatsHTML(dbStats, appStats, storageEstimate);
+          });
+        } else {
+          statsDiv.innerHTML = buildStatsHTML(dbStats, appStats, storageEstimate);
+        }
+      });
+    }
+
+    function buildStatsHTML(dbStats, appStats, storage) {
+      return '<div class="loan-summary" style="margin-bottom:12px">'+
+        '<div class="loan-box"><div class="num" style="font-size:1.5rem">'+appStats.tools+'</div><div class="lbl">🧰 تعداد ابزارها</div></div>'+
+        '<div class="loan-box"><div class="num">'+appStats.favorites+'</div><div class="lbl">⭐ علاقه‌مندی‌ها</div></div>'+
+        '<div class="loan-box"><div class="num">'+appStats.theme+'</div><div class="lbl">🎨 تم</div></div>'+
+        '<div class="loan-box"><div class="num">'+appStats.fontSize+'px</div><div class="lbl">🔤 سایز فونت</div></div>'+
+      '</div>'+
+      '<div class="row"><span class="label">💾 فضای مصرفی:</span><span class="value">'+storage+'</span></div>'+
+      dbStats.map(function(s) { return '<div class="row"><span class="label">📦 '+s.store+':</span><span class="value">'+s.count+' رکورد</span></div>'; }).join('')+
+      '<div class="row"><span class="label">🖋️ فونت:</span><span class="value">'+appStats.font+'</span></div>';
+    }
+
+    renderPanel();
+  }
+});
+
+// ─── Settings helpers ───
+function applyFont(font) {
+  var existing = document.getElementById('__customFont');
+  if (existing) existing.remove();
+  if (font === 'vazir') {
+    var link = document.createElement('link');
+    link.id = '__customFont';
+    link.rel = 'stylesheet';
+    link.href = 'https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.0.3/Vazirmatn-font-face.css';
+    document.head.appendChild(link);
+    document.documentElement.style.setProperty('--font', "'Vazirmatn', system-ui, sans-serif");
+  } else if (font === 'irani') {
+    var link2 = document.createElement('link');
+    link2.id = '__customFont';
+    link2.rel = 'stylesheet';
+    link2.href = 'https://cdn.fontcdn.ir/Font/Persian/IranSans/IranSans.css';
+    document.head.appendChild(link2);
+    document.documentElement.style.setProperty('--font', "'Iran Sans', system-ui, sans-serif");
+  } else if (font === 'tahoma') {
+    document.documentElement.style.setProperty('--font', 'Tahoma, system-ui, sans-serif');
+  } else {
+    document.documentElement.style.setProperty('--font', "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif");
+  }
+}
+
+async function exportAllData() {
+  var data = { version: '1.2.1', exported: new Date().toISOString(), localStorage: {}, indexedDB: {} };
+  // LocalStorage
+  for (var i = 0; i < localStorage.length; i++) {
+    var key = localStorage.key(i);
+    if (key.indexOf('tp_') === 0) {
+      try { data.localStorage[key] = JSON.parse(localStorage.getItem(key)); } catch(e) { data.localStorage[key] = localStorage.getItem(key); }
+    }
+  }
+  // IndexedDB
+  var d = await openDB();
+  var stores = Array.from(d.objectStoreNames);
+  for (var si = 0; si < stores.length; si++) {
+    var store = stores[si];
+    var all = await dbGetAll(store);
+    var keys = await dbGetAllKeys(store);
+    data.indexedDB[store] = {};
+    for (var ki = 0; ki < keys.length; ki++) {
+      data.indexedDB[store][String(keys[ki])] = all[ki];
+    }
+  }
+  return data;
+}
+
+async function importAllData(data) {
+  if (!data || !data.localStorage || !data.indexedDB) throw new Error('فرمت نادرست');
+  // Clear existing
+  await clearAllData();
+  // Restore localStorage
+  Object.keys(data.localStorage).forEach(function(k) {
+    try { localStorage.setItem(k, JSON.stringify(data.localStorage[k])); } catch(e) {}
+  });
+  // Restore IndexedDB
+  var d = await openDB();
+  await Promise.all(Object.keys(data.indexedDB).map(function(store) {
+    var entries = data.indexedDB[store];
+    return Promise.all(Object.keys(entries).map(function(key) {
+      return new Promise(function(resolve, reject) {
+        var tx = d.transaction(store, 'readwrite');
+        var req = tx.objectStore(store).put(entries[key], key);
+        req.onsuccess = resolve;
+        req.onerror = resolve;
+      });
+    }));
+  }));
+}
+
+async function clearAllData() {
+  // Clear localStorage with tp_ prefix
+  for (var i = localStorage.length - 1; i >= 0; i--) {
+    var key = localStorage.key(i);
+    if (key.indexOf('tp_') === 0 || key === 'theme') localStorage.removeItem(key);
+  }
+  // Clear IndexedDB
+  var d = await openDB();
+  var stores = Array.from(d.objectStoreNames);
+  await Promise.all(stores.map(function(store) {
+    return new Promise(function(resolve, reject) {
+      var tx = d.transaction(store, 'readwrite');
+      var req = tx.objectStore(store).clear();
+      req.onsuccess = resolve;
+      req.onerror = resolve;
+    });
+  }));
+}
+
+// Apply saved font/size on init
+(function() {
+  var fs = parseInt(lsGet('fontSize','16'))||16;
+  var ff = lsGet('fontFamily','system');
+  if (fs !== 16) document.documentElement.style.fontSize = fs + 'px';
+  if (ff !== 'system') applyFont(ff);
+})();
 
 
 
