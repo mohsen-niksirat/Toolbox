@@ -1291,63 +1291,212 @@ function setLang(lang) { _currentLang=lang; lsSet('lang',lang); location.reload(
 
 // ═══ Settings Popup ═══
 function openSettingsPopup() {
-  var overlay = document.createElement('div');
-  overlay.className = 'cat-popup-overlay';
-  overlay.id = '__settingsPopup';
+  var overlay = document.createElement("div");
+  overlay.className = "cat-popup-overlay";
+  overlay.id = "__settingsPopup";
 
-  var panel = document.createElement('div');
-  panel.className = 'cat-popup-panel';
-  panel.style.maxHeight = '80vh';
+  var panel = document.createElement("div");
+  panel.className = "cat-popup-panel";
+  panel.style.maxHeight = "85vh";
+  panel.style.paddingBottom = "80px";
 
-  var html = '<div class="cat-popup-header">' +
-    '<h3>⚙️ ' + _tr('settings') + '</h3>' +
-    '<button class="cat-popup-close">✕</button>' +
-    '</div>';
+  var lang = _currentLang;
+  var isFa = lang === "fa";
+  var QS = String.fromCharCode(39); // single quote
+  function sq(v) { return QS + v + QS; }
 
-  // Language section
-  html += '<div style="margin-bottom:16px">' +
-    '<div style="font-weight:700;font-size:.85rem;margin-bottom:8px">🌐 ' + (_currentLang==='fa'?'زبان برنامه':'Language') + '</div>' +
-    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">';
+  var html = '<div class="cat-popup-header">';
+  html += '<h3>⚙️ ' + _tr("settings") + '</h3>';
+  html += '<button class="cat-popup-close">✕</button>';
+  html += '</div>';
+
+  // Font Size
+  var sz = localStorage.getItem("tb_fontSize") || "medium";
+  var sizes = [
+    {id:"small",label:isFa?"کوچک":"Small",px:".75rem"},
+    {id:"medium",label:isFa?"متوسط":"Medium",px:".875rem"},
+    {id:"large",label:isFa?"بزرگ":"Large",px:"1rem"},
+    {id:"xlarge",label:isFa?"خیلی بزرگ":"X-Large",px:"1.125rem"}
+  ];
+  html += '<div style="margin-bottom:16px">';
+  html += '<div style="font-weight:700;font-size:.85rem;margin-bottom:8px">🔤 ' + (isFa?"اندازه فونت":"Font Size") + '</div>';
+  html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">';
+  sizes.forEach(function(s) {
+    var active = s.id === sz;
+    html += '<button class="btn' + (active?' btn-primary':'') + '" ';
+    html += 'style="font-size:' + s.px + ';padding:8px 4px" ';
+    html += 'onclick="setFontSize(' + sq(s.id) + ')">' + s.label + '</button>';
+  });
+  html += '</div></div>';
+
+  // Font Family
+  var ff = localStorage.getItem("tb_fontFamily") || "vazir";
+  var fonts = [
+    {id:"vazir",label:"Vazirmatn"},
+    {id:"system",label:isFa?"سیستمی":"System"},
+    {id:"sans",label:"Sans-Serif"}
+  ];
+  html += '<div style="margin-bottom:16px">';
+  html += '<div style="font-weight:700;font-size:.85rem;margin-bottom:8px">✏️ ' + (isFa?"فونت برنامه":"Font Family") + '</div>';
+  html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">';
+  fonts.forEach(function(f) {
+    var active = f.id === ff;
+    html += '<button class="btn' + (active?' btn-primary':'') + '" ';
+    html += 'style="font-size:.75rem;padding:8px 4px" ';
+    html += 'onclick="setFontFamily(' + sq(f.id) + ')">' + f.label + '</button>';
+  });
+  html += '</div></div>';
+
+  // Language
+  html += '<div style="margin-bottom:16px">';
+  html += '<div style="font-weight:700;font-size:.85rem;margin-bottom:8px">🌐 ' + (isFa?"زبان برنامه":"Language") + '</div>';
+  html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">';
   _langList.forEach(function(l) {
     var active = l === _currentLang;
-    html += '<button class="btn' + (active?' btn-primary':'') + '" ' +
-      'style="font-size:.75rem;padding:8px 4px" ' +
-      'onclick="setLang(\'' + l + '\')">' + _langNames[l] + '</button>';
+    html += '<button class="btn' + (active?' btn-primary':'') + '" ';
+    html += 'style="font-size:.75rem;padding:8px 4px" ';
+    html += 'onclick="setLang(' + sq(l) + ')">' + _langNames[l] + '</button>';
   });
   html += '</div></div>';
 
-  // Theme section
+  // Theme
   var themes = [
-    {id:'dark',icon:'🌙',name:'تاریک / Dark',name_en:'Dark'},
-    {id:'light',icon:'☀️',name:'روشن / Light',name_en:'Light'},
-    {id:'green',icon:'🌿',name:'سبز / Forest',name_en:'Forest'},
-    {id:'rose',icon:'🌸',name:'صورتی / Rose',name_en:'Rose'},
-    {id:'ocean',icon:'🌊',name:'آبی / Ocean',name_en:'Ocean'},
-    {id:'sunset',icon:'🌅',name:'غروب / Sunset',name_en:'Sunset'},
+    {id:"dark",icon:"🌙",name:"Dark"}, {id:"light",icon:"☀️",name:"Light"},
+    {id:"green",icon:"🌿",name:"Forest"}, {id:"rose",icon:"🌸",name:"Rose"},
+    {id:"ocean",icon:"🌊",name:"Ocean"}, {id:"sunset",icon:"🌅",name:"Sunset"},
   ];
-  html += '<div style="margin-bottom:16px">' +
-    '<div style="font-weight:700;font-size:.85rem;margin-bottom:8px">🎨 ' + (_currentLang==='fa'?'پوسته برنامه':'Theme') + '</div>' +
-    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">';
+  html += '<div style="margin-bottom:16px">';
+  html += '<div style="font-weight:700;font-size:.85rem;margin-bottom:8px">🎨 ' + (isFa?"پوسته برنامه":"Theme") + '</div>';
+  html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">';
   themes.forEach(function(t) {
     var active = t.id === currentTheme;
-    html += '<button class="btn' + (active?' btn-primary':'') + '" ' +
-      'style="font-size:.75rem;padding:8px 4px" ' +
-      'onclick="setTheme(\'' + t.id + '\')">' + t.icon + ' ' + t.name + '</button>';
+    html += '<button class="btn' + (active?' btn-primary':'') + '" ';
+    html += 'style="font-size:.75rem;padding:8px 4px" ';
+    html += 'onclick="setTheme(' + sq(t.id) + ')">' + t.icon + ' ' + t.name + '</button>';
   });
   html += '</div></div>';
 
-  // About
-  html += '<div style="text-align:center;padding:12px 0;border-top:1px solid var(--border)">' +
-    '<div style="font-size:.7rem;color:var(--text2)">🧰 Toolbox Pro v1.2.2</div>' +
-    '<div style="font-size:.65rem;color:var(--text2);margin-top:4px">151 ' + (_currentLang==='fa'?'ابزار':'tools') + ' · 6 ' + (_currentLang==='fa'?'زبان':'languages') + ' · 6 ' + (_currentLang==='fa'?'تم':'themes') + '</div>' +
-    '</div>';
+  // Data Management
+  html += '<div style="margin-bottom:16px">';
+  html += '<div style="font-weight:700;font-size:.85rem;margin-bottom:8px">💾 ' + (isFa?"مدیریت داده‌ها":"Data Management") + '</div>';
+  html += '<div style="display:flex;flex-direction:column;gap:6px">';
+  html += '<button class="btn btn-ghost" style="font-size:.75rem;padding:10px;text-align:right" ';
+  html += 'onclick="exportData()">📤 ' + (isFa?"خروجی داده‌ها (JSON)":"Export Data (JSON)") + '</button>';
+  html += '<label class="btn btn-ghost" style="font-size:.75rem;padding:10px;text-align:right;cursor:pointer">';
+  html += '📥 ' + (isFa?"ورودی داده‌ها (JSON)":"Import Data (JSON)");
+  html += '<input type="file" accept=".json" style="display:none" onchange="importData(this)"></label>';
+  html += '<button class="btn btn-ghost" style="font-size:.75rem;padding:10px;text-align:right;color:#ff6b6b" ';
+  html += 'onclick="if(confirm(' + sq(isFa?"همه داده‌ها پاک بشهǴA9":"Clear all data?") + ')){clearAllData()}">';
+  html += '🗑️ ' + (isFa?"پاک کردن همه داده‌ها":"Clear All Data") + '</button>';
+  html += '</div></div>';
+
+  // Usage Stats
+  var recent = [];
+  try { recent = JSON.parse(localStorage.getItem("tb_recent") || "[]"); } catch(e){}
+  var favs = [];
+  try { favs = JSON.parse(localStorage.getItem("tb_favorites") || "[]"); } catch(e){}
+  html += '<div style="margin-bottom:16px">';
+  html += '<div style="font-weight:700;font-size:.85rem;margin-bottom:8px">📊 ' + (isFa?"آمار استفاده":"Usage Stats") + '</div>';
+  html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">';
+  html += '<div style="text-align:center;padding:10px;background:rgba(255,255,255,.05);border-radius:8px">';
+  html += '<div style="font-size:1.5rem;font-weight:700;color:var(--accent)">' + tools.size + '</div>';
+  html += '<div style="font-size:.7rem;color:var(--text2)">' + (isFa?"کل ابزارها":"Total Tools") + '</div></div>';
+  html += '<div style="text-align:center;padding:10px;background:rgba(255,255,255,.05);border-radius:8px">';
+  html += '<div style="font-size:1.5rem;font-weight:700;color:var(--accent)">' + recent.length + '</div>';
+  html += '<div style="font-size:.7rem;color:var(--text2)">' + (isFa?"اخیراً استفاده شده":"Recently Used") + '</div></div>';
+  html += '<div style="text-align:center;padding:10px;background:rgba(255,255,255,.05);border-radius:8px">';
+  html += '<div style="font-size:1.5rem;font-weight:700;color:var(--accent)">' + favs.length + '</div>';
+  html += '<div style="font-size:.7rem;color:var(--text2)">' + (isFa?"علاقه‌مندی‌ها":"Favorites") + '</div></div>';
+  html += '<div style="text-align:center;padding:10px;background:rgba(255,255,255,.05);border-radius:8px">';
+  html += '<div style="font-size:1.5rem;font-weight:700;color:var(--accent)">' + _langList.length + '</div>';
+  html += '<div style="font-size:.7rem;color:var(--text2)">' + (isFa?"زبان‌ها":"Languages") + '</div></div>';
+  html += '</div></div>';
+
+  // About + GitHub
+  html += '<div style="text-align:center;padding:16px 0;border-top:1px solid var(--border)">';
+  html += '<div style="font-size:.8rem;font-weight:700;color:var(--text)">🧰 Toolbox Pro v1.2.3</div>';
+  html += '<div style="font-size:.65rem;color:var(--text2);margin-top:4px">';
+  html += tools.size + ' ' + (isFa?"ابزار":"tools") + ' · ' + _langList.length + ' ' + (isFa?"زبان":"languages") + ' · ' + themes.length + ' ' + (isFa?"تم":"themes");
+  html += '</div>';
+  html += '<a href="https://github.com/mohsen-niksirat/Toolbox" target="_blank" ';
+  html += 'style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:8px 16px;background:rgba(255,255,255,.08);border-radius:8px;color:var(--text);text-decoration:none;font-size:.75rem;font-weight:600">';
+  html += '⭐ ' + (isFa?"مشاهده در گیت‌هاب":"View on GitHub") + '</a>';
+  html += '</div>';
 
   panel.innerHTML = html;
   overlay.appendChild(panel);
   document.body.appendChild(overlay);
 
-  overlay.querySelector('.cat-popup-close').onclick = function() { overlay.remove(); };
+  overlay.querySelector(".cat-popup-close").onclick = function() { overlay.remove(); };
   overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+}
+
+// Settings Helpers
+function setFontSize(size) {
+  localStorage.setItem("tb_fontSize", size);
+  var map = {small:".75rem", medium:".875rem", large:"1rem", xlarge:"1.125rem"};
+  document.documentElement.style.fontSize = map[size] || ".875rem";
+  var el = document.getElementById("__settingsPopup");
+  if (el) el.remove();
+  openSettingsPopup();
+}
+
+function setFontFamily(fam) {
+  localStorage.setItem("tb_fontFamily", fam);
+  var map = {vazir:"Vazirmatn, sans-serif", system:"system-ui, -apple-system, sans-serif", sans:"Segoe UI, sans-serif"};
+  document.body.style.fontFamily = map[fam] || map.vazir;
+  var el = document.getElementById("__settingsPopup");
+  if (el) el.remove();
+  openSettingsPopup();
+}
+
+function exportData() {
+  var data = {
+    favorites: localStorage.getItem("tb_favorites"),
+    recent: localStorage.getItem("tb_recent"),
+    theme: localStorage.getItem("tb_theme"),
+    lang: localStorage.getItem("tb_lang"),
+    fontSize: localStorage.getItem("tb_fontSize"),
+    fontFamily: localStorage.getItem("tb_fontFamily"),
+    tourSeen: localStorage.getItem("tb_tour_seen"),
+    exportDate: new Date().toISOString(),
+    version: "1.2.3"
+  };
+  var blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url; a.download = "toolbox-backup-" + new Date().toISOString().slice(0,10) + ".json";
+  a.click(); URL.revokeObjectURL(url);
+  showToast("📤 " + (_currentLang==="fa"?"داده‌ها خروجی گرفته شد":"Data exported"));
+}
+
+function importData(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      if (data.favorites) localStorage.setItem("tb_favorites", data.favorites);
+      if (data.recent) localStorage.setItem("tb_recent", data.recent);
+      if (data.theme) { localStorage.setItem("tb_theme", data.theme); setTheme(data.theme); }
+      if (data.lang) { localStorage.setItem("tb_lang", data.lang); setLang(data.lang); }
+      if (data.fontSize) setFontSize(data.fontSize);
+      if (data.fontFamily) setFontFamily(data.fontFamily);
+      showToast("📥 " + (_currentLang==="fa"?"داده‌ها بازیابی شد":"Data imported"));
+      setTimeout(function(){ location.reload(); }, 1000);
+    } catch(err) {
+      showToast("❌ " + (_currentLang==="fa"?"فایل نامعتبر":"Invalid file"));
+    }
+  };
+  reader.readAsText(file);
+}
+
+function clearAllData() {
+  var keys = Object.keys(localStorage);
+  keys.forEach(function(k) { if (k.startsWith("tb_")) localStorage.removeItem(k); });
+  showToast("🗑️ " + (_currentLang==="fa"?"همه داده‌ها پاک شد":"All data cleared"));
+  setTimeout(function(){ location.reload(); }, 1000);
 }
 
 // ═══ End i18n ═══
