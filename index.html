@@ -3405,7 +3405,6 @@ function renderDividend(container) {
 const finTools = [
   { id: 'fin-topup', name: 'خرید شارژ', icon: '📱', category: 'financial', keywords: ['شارژ', 'topup', 'ایرانسل', 'همراه اول', 'رایتل', 'USSD'], desc: 'دریافت کد USSD خرید شارژ', render: renderTopup },
   { id: 'fin-bill', name: 'محاسبه قبض', icon: '🧾', category: 'financial', keywords: ['قبض', 'برق', 'گاز', 'آب', 'bill'], desc: 'محاسبه تقریبی قبض بر اساس مصرف', render: renderBill },
-  { id: 'fin-salary', name: 'محاسبه حقوق', icon: '💼', category: 'financial', keywords: ['حقوق', 'دستمزد', 'salary', 'مالیات', 'بیمه'], desc: 'محاسبه حقوق خالص با کسر مالیات و بیمه', render: renderSalary },
   { id: 'fin-dividend', name: 'سود سهام', icon: '📈', category: 'financial', keywords: ['سود', 'سهام', 'dividend', 'بازده'], desc: 'محاسبه سود سهام و بازده سالانه', render: renderDividend },
 ];
 
@@ -14566,9 +14565,7 @@ showTool = function(toolId) {
   }, 100);
 };
 
-  </script>
 
-  <script>
 // ═══════════════════════════════════════════
 // Toolbox Pro — Main Application
 // ═══════════════════════════════════════════
@@ -15157,6 +15154,9 @@ registerTool({
     calc();
   }
 });
+
+// ─── Start the App ───
+init();
 
   </script>
 
