@@ -13536,6 +13536,122 @@ registerTool({
   }
 });
 
+// ─── Tool Health Checker ───
+registerTool({
+  id: 'other-healthcheck',
+  name: 'سلامت ابزارها', name_en: 'Tool Health Check',
+  icon: '🩺',
+  category: 'other',
+  keywords: ['سلامت', 'health', 'وضعیت', 'cache', 'آفلاین', 'Browser', 'capabilit'],
+  desc: 'بررسی وضعیت ابزارها، کش مرورگر، قابلیت‌های مرورگر و وابستگی اینترنتی', desc_en: 'Check tool status, cache, browser capabilities and internet dependencies',
+  render: function(container) {
+    var isOnline = navigator.onLine;
+    var swActive = !!navigator.serviceWorker.controller;
+    var swScope = navigator.serviceWorker.controller ? navigator.serviceWorker.controller.scope : 'none';
+    var idbOk = !!window.indexedDB;
+    var notifOk = 'Notification' in window;
+    var notifPerm = notifOk ? Notification.permission : 'unsupported';
+    var cryptoOk = !!window.crypto && !!window.crypto.getRandomValues;
+    var clipboardOk = !!navigator.clipboard;
+    var speechOk = 'speechSynthesis' in window;
+    var mediaOk = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    var speechRecogOk = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+    var vibrationOk = 'vibrate' in navigator;
+    var shareOk = 'share' in navigator;
+    var wakeLockOk = 'wakeLock' in navigator;
+    var batteryOk = 'getBattery' in navigator;
+    var geolocationOk = 'geolocation' in navigator;
+    var allTools = getAllTools();
+    var totalTools = allTools.length;
+
+    // Tools that need internet
+    var onlineTools = [];
+    var keywords = ['translate', 'ترجمه', 'weather', 'آبوهوا', 'آب و هوا', 'IP', 'آی‌پی', 'market', 'بازار', '.crypto', 'Crypto', 'ارز دیجیتال'];
+    allTools.forEach(function(t) {
+      var isOnlineTool = false;
+      if (t.keywords) {
+        t.keywords.forEach(function(k) {
+          keywords.forEach(function(kw) {
+            if (k.toLowerCase().includes(kw.toLowerCase())) isOnlineTool = true;
+          });
+        });
+      }
+      if (isOnlineTool) onlineTools.push(t);
+    });
+    var offlineTools = totalTools - onlineTools.length;
+
+    // Cache info
+    var cacheNames = [];
+    var cacheSize = 0;
+    caches.keys().then(function(names) {
+      cacheNames = names;
+      return Promise.all(names.map(function(n) { return caches.open(n); }));
+    }).then(function(cachesArr) {
+      return Promise.all(cachesArr.map(function(cache) {
+        return cache.keys().then(function(reqs) {
+          reqs.forEach(function() { cacheSize++; });
+        });
+      }));
+    }).then(function() {
+      render();
+    });
+
+    function statusIcon(ok) { return ok ? '<span style="color:var(--success)">✅</span>' : '<span style="color:var(--danger)">❌</span>'; }
+
+    function render() {
+      var rows = [
+        ['🌐 آنلاین', isOnline ? 'بله' : 'خیر'],
+        ['📡 Service Worker', swActive ? 'فعال' : 'غیرفعال'],
+        ['💾 IndexedDB', statusIcon(idbOk) + ' ' + (idbOk ? 'در دسترس' : 'غیرقابل دسترس')],
+        ['🔔 نوتیفیکیشن', statusIcon(notifOk) + ' ' + notifPerm],
+        ['🔐 Crypto API', statusIcon(cryptoOk)],
+        ['📋 Clipboard API', statusIcon(clipboardOk)],
+        ['🔊 Speech Synthesis', statusIcon(speechOk)],
+        ['🎤 Speech Recognition', statusIcon(speechRecogOk)],
+        ['📸 Media (Camera)', statusIcon(mediaOk)],
+        ['📳 Vibrate', statusIcon(vibrationOk)],
+        ['🔗 Web Share API', statusIcon(shareOk)],
+        ['🔒 Wake Lock API', statusIcon(wakeLockOk)],
+        ['🔋 Battery API', statusIcon(batteryOk)],
+        ['📍 Geolocation', statusIcon(geolocationOk)],
+      ];
+
+      var html = '<div class="card">' +
+        '<h3 style="margin-bottom:12px;font-size:1rem">📊 وضعیت مرورگر</h3>' +
+        rows.map(function(r) {
+          return '<div class="row"><span class="label">' + r[0] + '</span><span class="value" style="font-size:.82rem">' + r[1] + '</span></div>';
+        }).join('') +
+        '</div>' +
+
+        '<div class="card" style="margin-top:12px">' +
+        '<h3 style="margin-bottom:12px;font-size:1rem">🛠️ آمار ابزارها</h3>' +
+        '<div class="row"><span class="label">تعداد کل ابزارها</span><span class="value" style="font-size:1.1rem;color:var(--accent);font-weight:800">' + totalTools + '</span></div>' +
+        '<div class="row"><span class="label">ابزارهای آفلاین</span><span class="value" style="color:var(--success)">' + offlineTools + '</span></div>' +
+        '<div class="row"><span class="label">ابزارهای نیازمند اینترنت</span><span class="value" style="color:var(--warning)">' + onlineTools.length + '</span></div>' +
+        '</div>' +
+
+        '<div class="card" style="margin-top:12px">' +
+        '<h3 style="margin-bottom:12px;font-size:1rem">💾 وضعیت کش</h3>' +
+        '<div class="row"><span class="label">تعداد کش‌ها</span><span class="value">' + cacheNames.length + '</span></div>' +
+        '<div class="row"><span class="label">فایل‌های کش‌شده</span><span class="value">' + cacheSize + '</span></div>' +
+        cacheNames.map(function(n) {
+          return '<div class="row"><span class="label" style="font-size:.7rem">🗂️ ' + n + '</span></div>';
+        }).join('') +
+        '</div>';
+
+      if (onlineTools.length > 0) {
+        html += '<div class="card" style="margin-top:12px"><h3 style="margin-bottom:12px;font-size:1rem">🌐 ابزارهای نیازمند اینترنت</h3>' +
+          onlineTools.map(function(t) {
+            return '<div class="row" style="cursor:pointer" onclick="navigate(\''+t.id+'\')"><span class="label">' + t.icon + ' ' + t.name + '</span><span class="value" style="color:var(--warning);font-size:.75rem">آنلاین</span></div>';
+          }).join('') + '</div>';
+      }
+
+      container.innerHTML = html;
+    }
+    render();
+  }
+});
+
 // ─── Persian Lorem Ipsum ───
 registerTool({
   id: 'dev-persianlorem2',

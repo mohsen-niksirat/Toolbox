@@ -2,7 +2,7 @@
   "name": "جعبه ابزار حرفه‌ای — Toolbox Pro",
   "short_name": "تولباکس",
   "description": "۱۳۰+ ابزار کاربردی در یک اپلیکیشن وب",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "any",
