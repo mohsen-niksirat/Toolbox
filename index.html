@@ -3815,6 +3815,7 @@ function renderSnake(c) {
   c.querySelectorAll('.snake-btn').forEach(function(b) {
     b.onclick = function() {
       var d = b.dataset.dir;
+      if (isRTL()) { if (d === 'left') d = 'right'; else if (d === 'right') d = 'left'; }
       if (d === 'up' && dir !== 'down') dir = 'up';
       if (d === 'down' && dir !== 'up') dir = 'down';
       if (d === 'left' && dir !== 'right') dir = 'left';
