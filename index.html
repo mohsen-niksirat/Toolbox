@@ -4443,23 +4443,34 @@ function renderSudoku(c) {
   function render() {
     const grid=c.querySelector('.sdk-grid');
     grid.innerHTML='';
-    for(let r=0;r<9;r++) for(let col=0;col<9;col++){
-      const cell=document.createElement('input');
-      cell.type='text';cell.maxLength=1;
-      var bg = puzzle[r][col] ? 'rgba(255,255,255,.06)' : 'var(--bg)';
-      var borders = 'border-right:1px solid rgba(255,255,255,.15);border-bottom:1px solid rgba(255,255,255,.15);';
-      if (col % 3 === 0) borders += 'border-left:2px solid var(--accent);';
-      if (r % 3 === 0) borders += 'border-top:2px solid var(--accent);';
-      if (col === 8) borders += 'border-right:2px solid var(--accent);';
-      if (r === 8) borders += 'border-bottom:2px solid var(--accent);';
-      cell.style.cssText='width:100%;aspect-ratio:1;text-align:center;font-size:1rem;font-weight:700;border:none;border-radius:0;outline:none;background:'+bg+';color:var(--text);'+borders;
-      if(puzzle[r][col]) { cell.value=puzzle[r][col]; cell.readOnly=true; }
-      else {
-        cell.value=userInput[r][col]||'';
-        cell.oninput=()=>{const v=parseInt(cell.value);if(isNaN(v)||v<1||v>9){cell.value='';return;}userInput[r][col]=v;};
+    var wrap=document.createElement('div');
+    wrap.style.cssText='width:100%;max-width:324px;margin:0 auto;display:grid;grid-template-columns:repeat(9,1fr);gap:0;border:2px solid var(--accent);border-radius:4px;overflow:hidden';
+    for(var r=0;r<9;r++){
+      for(var col2=0;col2<9;col2++){
+        var cell=document.createElement('div');
+        var bg2=puzzle[r][col2]?'rgba(255,255,255,.06)':'var(--bg)';
+        var bT='1px solid rgba(255,255,255,.12)';
+        var bB='1px solid rgba(255,255,255,.12)';
+        var bL='1px solid rgba(255,255,255,.12)';
+        var bR='1px solid rgba(255,255,255,.12)';
+        if(r%3===0) bT='2px solid var(--accent)';
+        if(col2%3===0) bL='2px solid var(--accent)';
+        if(r===8) bB='2px solid var(--accent)';
+        if(col2===8) bR='2px solid var(--accent)';
+        cell.style.cssText='aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:'+bg2+';border-top:'+bT+';border-left:'+bL+';border-bottom:'+bB+';border-right:'+bR+';box-sizing:border-box';
+        var inp=document.createElement('input');
+        inp.type='text';inp.maxLength=1;
+        inp.style.cssText='width:100%;height:100%;text-align:center;font-size:clamp(.8rem,3vw,1.1rem);font-weight:700;border:none;background:transparent;color:var(--text);outline:none;padding:0;margin:0';
+        if(puzzle[r][col2]){inp.value=puzzle[r][col2];inp.readOnly=true;inp.style.color='var(--text)';}
+        else{
+          inp.value=userInput[r][col2]||'';
+          (function(rr,cc){inp.oninput=function(){var v=parseInt(this.value);if(isNaN(v)||v<1||v>9){this.value='';return;}userInput[rr][cc]=v;};})(r,col2);
+        }
+        cell.appendChild(inp);
+        wrap.appendChild(cell);
       }
-      grid.appendChild(cell);
     }
+    grid.appendChild(wrap);
   }
   function validate() {
     for(let r=0;r<9;r++) for(let col=0;col<9;col++){
@@ -4469,8 +4480,8 @@ function renderSudoku(c) {
   }
   c.innerHTML = `
     <div class="chip-group"><button class="chip active" data-d="easy">آسان</button><button class="chip" data-d="medium">متوسط</button><button class="chip" data-d="hard">سخت</button></div>
-    <div class="sdk-grid" style="display:grid;grid-template-columns:repeat(9,1fr);gap:0;max-width:360px;margin:8px auto;border-left:2px solid var(--accent);border-top:2px solid var(--accent);border-radius:6px;overflow:hidden"></div>
-    <div class="btn-group"><button class="btn btn-success" id="sdkCheck">بررسی</button><button class="btn btn-primary" id="sdkNew">جدید</button></div>`;
+    <div class="sdk-grid" style="padding:4px 0;max-height:calc(100vh - 240px);overflow-y:auto"></div>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:center"><button class="btn btn-success" style="flex:1;min-width:120px" id="sdkCheck">بررسی</button><button class="btn btn-primary" style="flex:1;min-width:120px" id="sdkNew">جدید</button></div>`;
   c.querySelectorAll('.chip').forEach(b=>{b.onclick=()=>{c.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));b.classList.add('active');generate(b.dataset.d);render();};});
   c.querySelector('#sdkCheck').onclick=validate;
   c.querySelector('#sdkNew').onclick=()=>{generate('easy');render();};
