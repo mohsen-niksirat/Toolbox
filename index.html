@@ -56,6 +56,34 @@
   --accent-glow:rgba(108,92,231,.12);
   --glass:rgba(0,0,0,.03);--glass2:rgba(0,0,0,.06);--glass3:rgba(0,0,0,.09);
 }
+[data-theme="green"]{
+  --bg:#0a1a12;--bg2:#0f2318;--card:#162e1f;--card-hover:#1e3a28;
+  --border:#2a4a35;--text:#e0f0e6;--text2:#7fb896;
+  --accent:#00b894;--accent2:#55efc4;--accent-glow:rgba(0,184,148,.25);
+  --success:#00b894;--danger:#e17055;--warning:#fdcb6e;
+  --glass:rgba(255,255,255,.04);--glass2:rgba(255,255,255,.08);--glass3:rgba(255,255,255,.12);
+}
+[data-theme="rose"]{
+  --bg:#1a0a14;--bg2:#2a1020;--card:#3a1530;--card-hover:#4a1a3a;
+  --border:#5a2a4a;--text:#f0e0ea;--text2:#c88aaa;
+  --accent:#e84393;--accent2:#fd79a8;--accent-glow:rgba(232,67,147,.25);
+  --success:#00b894;--danger:#e17055;--warning:#fdcb6e;
+  --glass:rgba(255,255,255,.04);--glass2:rgba(255,255,255,.08);--glass3:rgba(255,255,255,.12);
+}
+[data-theme="ocean"]{
+  --bg:#0a1020;--bg2:#0f1830;--card:#152040;--card-hover:#1a2850;
+  --border:#2a3860;--text:#e0e8f0;--text2:#8898b8;
+  --accent:#0984e3;--accent2:#74b9ff;--accent-glow:rgba(9,132,227,.25);
+  --success:#00b894;--danger:#e17055;--warning:#fdcb6e;
+  --glass:rgba(255,255,255,.04);--glass2:rgba(255,255,255,.08);--glass3:rgba(255,255,255,.12);
+}
+[data-theme="sunset"]{
+  --bg:#1a1008;--bg2:#2a1810;--card:#3a2018;--card-hover:#4a2820;
+  --border:#5a3830;--text:#f0e0d0;--text2:#c8a888;
+  --accent:#e17055;--accent2:#fab1a0;--accent-glow:rgba(225,112,85,.25);
+  --success:#00b894;--danger:#d63031;--warning:#fdcb6e;
+  --glass:rgba(255,255,255,.04);--glass2:rgba(255,255,255,.08);--glass3:rgba(255,255,255,.12);
+}
 
 html,body{
   height:100%;font-family:var(--font);background:var(--bg);color:var(--text);
@@ -662,6 +690,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
           <h2 id="pageTitle">خانه</h2>
         </div>
         <div class="topbar-actions">
+          <button id="settingsBtn" class="theme-toggle" aria-label="تنظیمات" onclick="openSettingsPopup()">⚙️</button>
           <button id="themeToggle" class="theme-toggle" aria-label="تغییر تم">🌙</button>
         </div>
       </header>
@@ -680,7 +709,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
         <section id="recentSection" class="home-section" style="display:none">
           <div class="home-section-title" onclick="this.parentElement.classList.toggle('open')">
             <span class="section-arrow">▼</span>
-            🕐 اخیراً استفاده شده
+            <span id="recentTitle">🕐 اخیراً استفاده شده</span>
           </div>
           <div class="home-section-content">
             <div id="recentGrid" class="all-tools-grid"></div>
@@ -1087,13 +1116,17 @@ function setTheme(theme) {
   updateToggleBtn();
 }
 
+var _themeCycle = ['dark','light','green','rose','ocean','sunset'];
 function toggleTheme() {
-  setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+  var idx = _themeCycle.indexOf(currentTheme);
+  var next = _themeCycle[(idx + 1) % _themeCycle.length];
+  setTheme(next);
 }
 
+var _themeIcons = {dark:'☀️',light:'🌙',green:'🌿',rose:'🌸',ocean:'🌊',sunset:'🌅'};
 function updateToggleBtn() {
   const btn = document.getElementById('themeToggle');
-  if (btn) btn.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+  if (btn) btn.textContent = _themeIcons[currentTheme] || '🌙';
 }
 
 function initTheme() {
@@ -1137,6 +1170,7 @@ const _DICT = {
     'initializing':'🧰 جعبه ابزار حرفه‌ای','title_suffix':' — جعبه ابزار حرفه‌ای',
     'no_favorites':'هنوز ابزاری رو ⭐ نکردی!','no_recent':'اخیراً ابزاری استفاده نکردی.',
     'init_error':'⚠️ خطا در راه‌اندازی','clear_cache':'لطفاً Cache مرورگر را پاک کنید',
+    'tools_count':'ابزار','recent_used':'🕐 اخیراً استفاده شده','tool_load_error':'خطا در بارگذاری ابزار',
   },
   en: {
     'cat.calculators':'🧮 Calculators','cat.converters':'🔄 Converters','cat.iran-market':'🇮🇷 Iran Market',
@@ -1158,12 +1192,162 @@ const _DICT = {
     'initializing':'🧰 Toolbox Pro','title_suffix':' — Toolbox Pro',
     'no_favorites':'No favorites yet! ⭐','no_recent':'No recent tools used.',
     'init_error':'⚠️ Initialization Error','clear_cache':'Please clear browser cache (Ctrl+Shift+Del)',
+    'tools_count':'tools','recent_used':'🕐 Recently Used','tool_load_error':'Error loading tool',
+  },
+  ar: {
+    'cat.calculators':'🧮 حاسبات','cat.converters':'🔄 محولات','cat.iran-market':'🇮🇷 سوق إيران',
+    'cat.text-code':'📝 نصوص و كود','cat.generators':'🔧 مولّدات','cat.color-tools':'🎨 ألوان',
+    'cat.time':'⏱ وقت','cat.health':'🏥 صحة','cat.financial':'💵 مالية',
+    'cat.iran-info':'📋 معلومات إيران','cat.other':'🌐 أدوات أخرى','cat.games':'🎮 ألعاب',
+    'cat.productivity':'🎯 إنتاجية','cat.new-tools':'🆕 أدوات جديدة',
+    'search':'بحث عن أدوات...','home':'الرئيسية','favorites':'المفضلة','search_label':'بحث',
+    'recent':'الأدوات الأخيرة','all_tools':'كل الأدوات','back':'← رجوع','theme':'تبديل المظهر',
+    'menu':'القائمة','offline':'أنت غير متصل','copy_done':'تم النسخ!','confirm_delete':'هل أنت متأكد؟',
+    'settings':'الإعدادات','font':'الخط','backup':'نسخ احتياطي','stats':'إحصائيات',
+    'discover':'✨ اكتشف الأدوات','discover_desc':'جرّب هذه الأدوات اليوم:',
+    'tour_welcome':'مرحباً بك في صندوق الأدوات! 🧰','tour_step1':'١. اختر أداة',
+    'tour_step2':'٢. تصفّح حسب الفئة','tour_step3':'٣. أضف المفضلة بـ ⭐',
+    'tour_step4':'٤. استخدم البحث للعثور السريع','tour_step5':'٥. ثبّت التطبيق على هاتفك 📱',
+    'tour_done':'فهمت!','lang_switch':'فارسی',
+    'initializing':'🧰 صندوق الأدوات','title_suffix':' — صندوق الأدوات',
+    'no_favorites':'لا مفضلات بعد!','no_recent':'لم تستخدم أي أدوات مؤخراً.',
+    'init_error':'⚠️ خطأ في التهيئة','clear_cache':'امسح ذاكرة التخزين المؤقت',
+    'tools_count':'أدوات','recent_used':'🕐 المستخدمة مؤخراً','tool_load_error':'خطأ في تحميل الأداة',
+  },
+  tr: {
+    'cat.calculators':'🧮 Hesaplayıcılar','cat.converters':'🔄 Dönüştürücüler','cat.iran-market':'🇮🇷 İran Pazarı',
+    'cat.text-code':'📝 Metin ve Kod','cat.generators':'🔧 Üreteçler','cat.color-tools':'🎨 Renkler',
+    'cat.time':'⏱ Zaman','cat.health':'🏥 Sağlık','cat.financial':'💵 Finans',
+    'cat.iran-info':'📋 İran Bilgisi','cat.other':'🌐 Diğer Araçlar','cat.games':'🎮 Oyunlar',
+    'cat.productivity':'🎯 Verimlilik','cat.new-tools':'🆕 Yeni Araçlar',
+    'search':'Araç ara...','home':'Ana Sayfa','favorites':'Favoriler','search_label':'Ara',
+    'recent':'Son Araçlar','all_tools':'Tüm Araçlar','back':'← Geri','theme':'Temayı Değiştir',
+    'menu':'Menü','offline':'Çevrimdışısınız','copy_done':'Kopyalandı!','confirm_delete':'Emin misiniz?',
+    'settings':'Ayarlar','font':'Yazı Tipi','backup':'Yedekleme','stats':'İstatistikler',
+    'discover':'✨ Araç Keşfi','discover_desc':'Bugün bu araçları deneyin:',
+    'tour_welcome':'Araç Kutusuna Hoş Geldiniz! 🧰','tour_step1':'1. Bir araç seçin',
+    'tour_step2':'2. Kategoriye göre gezinin','tour_step3':'3. ⭐ ile favorilere ekleyin',
+    'tour_step4':'4. Hızlı bulmak için arama kullanın','tour_step5':'5. Telefonunuza kurun 📱',
+    'tour_done':'Anladım!','lang_switch':'فارسی',
+    'initializing':'🧰 Araç Kutusu','title_suffix':' — Araç Kutusu',
+    'no_favorites':'Henüz favori yok!','no_recent':'Son kullanılan araç yok.',
+    'init_error':'⚠️ Başlatma Hatası','clear_cache':'Tarayıcı önbelleğini temizleyin',
+    'tools_count':'araç','recent_used':'🕐 Son Kullanılanlar','tool_load_error':'Araç yüklenirken hata',
+  },
+  fr: {
+    'cat.calculators':'🧮 Calculateurs','cat.converters':'🔄 Convertisseurs','cat.iran-market':'🇮🇷 Marché Iran',
+    'cat.text-code':'📝 Texte et Code','cat.generators':'🔧 Générateurs','cat.color-tools':'🎨 Couleurs',
+    'cat.time':'⏱ Temps','cat.health':'🏥 Santé','cat.financial':'💵 Finance',
+    'cat.iran-info':'📋 Info Iran','cat.other':'🌐 Autres Outils','cat.games':'🎮 Jeux',
+    'cat.productivity':'🎯 Productivité','cat.new-tools':'🆕 Nouveaux Outils',
+    'search':'Rechercher des outils...','home':'Accueil','favorites':'Favoris','search_label':'Rechercher',
+    'recent':'Récents','all_tools':'Tous les Outils','back':'← Retour','theme':'Changer le Thème',
+    'menu':'Menu','offline':'Vous êtes hors ligne','copy_done':'Copié!','confirm_delete':'Êtes-vous sûr?',
+    'settings':'Paramètres','font':'Police','backup':'Sauvegarde','stats':'Statistiques',
+    'discover':'✨ Découverte','discover_desc':'Essayez ces outils aujourd\'hui:',
+    'tour_welcome':'Bienvenue dans Toolbox! 🧰','tour_step1':'1. Sélectionnez un outil',
+    'tour_step2':'2. Parcourez par catégorie','tour_step3':'3. Ajoutez aux favoris ⭐',
+    'tour_step4':'4. Utilisez la recherche rapide','tour_step5':'5. Installez sur votre téléphone 📱',
+    'tour_done':'Compris!','lang_switch':'فارسی',
+    'initializing':'🧰 Toolbox Pro','title_suffix':' — Toolbox Pro',
+    'no_favorites':'Pas encore de favoris!','no_recent':'Aucun outil récent utilisé.',
+    'init_error':'⚠️ Erreur d\'initialisation','clear_cache':'Videz le cache du navigateur',
+    'tools_count':'outils','recent_used':'🕐 Récemment Utilisés','tool_load_error':'Erreur de chargement',
+  },
+  de: {
+    'cat.calculators':'🧮 Rechner','cat.converters':'🔄 Umrechner','cat.iran-market':'🇮🇷 Iran Markt',
+    'cat.text-code':'📝 Text & Code','cat.generators':'🔧 Generatoren','cat.color-tools':'🎨 Farben',
+    'cat.time':'⏱ Zeit','cat.health':'🏥 Gesundheit','cat.financial':'💵 Finanzen',
+    'cat.iran-info':'📋 Iran Info','cat.other':'🌐 Andere Tools','cat.games':'🎮 Spiele',
+    'cat.productivity':'🎯 Produktivität','cat.new-tools':'🆕 Neue Tools',
+    'search':'Tools suchen...','home':'Startseite','favorites':'Favoriten','search_label':'Suchen',
+    'recent':'Zuletzt','all_tools':'Alle Tools','back':'← Zurück','theme':'Design Wechseln',
+    'menu':'Menü','offline':'Sie sind offline','copy_done':'Kopiert!','confirm_delete':'Sind Sie sicher?',
+    'settings':'Einstellungen','font':'Schrift','backup':'Backup','stats':'Statistiken',
+    'discover':'✨ Tool Entdeckung','discover_desc':'Probieren Sie diese Tools heute:',
+    'tour_welcome':'Willkommen bei Toolbox! 🧰','tour_step1':'1. Wählen Sie ein Tool',
+    'tour_step2':'2. Nach Kategorie durchsuchen','tour_step3':'3. ⭐ Zu Favoriten hinzufügen',
+    'tour_step4':'4. Schnellsuche verwenden','tour_step5':'5. Auf Handy installieren 📱',
+    'tour_done':'Verstanden!','lang_switch':'فارسی',
+    'initializing':'🧰 Toolbox Pro','title_suffix':' — Toolbox Pro',
+    'no_favorites':'Noch keine Favoriten!','no_recent':'Keine kürzlich verwendeten Tools.',
+    'init_error':'⚠️ Initialisierungsfehler','clear_cache':'Browser-Cache leeren',
+    'tools_count':'Tools','recent_used':'🕐 Zuletzt Verwendet','tool_load_error':'Fehler beim Laden',
   }
 };
+var _langNames = {fa:'فارسی',en:'English',ar:'العربية',tr:'Türkçe',fr:'Français',de:'Deutsch'};
+var _langList = ['fa','en','ar','tr','fr','de'];
 function _tr(key) { var d=_DICT[_currentLang]||_DICT.fa; return d[key]||(_DICT.fa[key]||key); }
-function _toolName(tool) { return _currentLang==='en'&&tool.name_en ? tool.name_en : tool.name; }
-function _toolDesc(tool) { return _currentLang==='en'&&tool.desc_en ? tool.desc_en : tool.desc; }
+function _toolName(tool) {
+  if (_currentLang!=='fa' && tool.name_en) return tool.name_en;
+  return tool.name;
+}
+function _toolDesc(tool) {
+  if (_currentLang!=='fa' && tool.desc_en) return tool.desc_en;
+  return tool.desc;
+}
 function setLang(lang) { _currentLang=lang; lsSet('lang',lang); location.reload(); }
+
+// ═══ Settings Popup ═══
+function openSettingsPopup() {
+  var overlay = document.createElement('div');
+  overlay.className = 'cat-popup-overlay';
+  overlay.id = '__settingsPopup';
+
+  var panel = document.createElement('div');
+  panel.className = 'cat-popup-panel';
+  panel.style.maxHeight = '80vh';
+
+  var html = '<div class="cat-popup-header">' +
+    '<h3>⚙️ ' + _tr('settings') + '</h3>' +
+    '<button class="cat-popup-close">✕</button>' +
+    '</div>';
+
+  // Language section
+  html += '<div style="margin-bottom:16px">' +
+    '<div style="font-weight:700;font-size:.85rem;margin-bottom:8px">🌐 ' + (_currentLang==='fa'?'زبان برنامه':'Language') + '</div>' +
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">';
+  _langList.forEach(function(l) {
+    var active = l === _currentLang;
+    html += '<button class="btn' + (active?' btn-primary':'') + '" ' +
+      'style="font-size:.75rem;padding:8px 4px" ' +
+      'onclick="setLang(\'' + l + '\')">' + _langNames[l] + '</button>';
+  });
+  html += '</div></div>';
+
+  // Theme section
+  var themes = [
+    {id:'dark',icon:'🌙',name:'تاریک / Dark',name_en:'Dark'},
+    {id:'light',icon:'☀️',name:'روشن / Light',name_en:'Light'},
+    {id:'green',icon:'🌿',name:'سبز / Forest',name_en:'Forest'},
+    {id:'rose',icon:'🌸',name:'صورتی / Rose',name_en:'Rose'},
+    {id:'ocean',icon:'🌊',name:'آبی / Ocean',name_en:'Ocean'},
+    {id:'sunset',icon:'🌅',name:'غروب / Sunset',name_en:'Sunset'},
+  ];
+  html += '<div style="margin-bottom:16px">' +
+    '<div style="font-weight:700;font-size:.85rem;margin-bottom:8px">🎨 ' + (_currentLang==='fa'?'پوسته برنامه':'Theme') + '</div>' +
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">';
+  themes.forEach(function(t) {
+    var active = t.id === currentTheme;
+    html += '<button class="btn' + (active?' btn-primary':'') + '" ' +
+      'style="font-size:.75rem;padding:8px 4px" ' +
+      'onclick="setTheme(\'' + t.id + '\')">' + t.icon + ' ' + t.name + '</button>';
+  });
+  html += '</div></div>';
+
+  // About
+  html += '<div style="text-align:center;padding:12px 0;border-top:1px solid var(--border)">' +
+    '<div style="font-size:.7rem;color:var(--text2)">🧰 Toolbox Pro v1.2.2</div>' +
+    '<div style="font-size:.65rem;color:var(--text2);margin-top:4px">151 ' + (_currentLang==='fa'?'ابزار':'tools') + ' · 6 ' + (_currentLang==='fa'?'زبان':'languages') + ' · 6 ' + (_currentLang==='fa'?'تم':'themes') + '</div>' +
+    '</div>';
+
+  panel.innerHTML = html;
+  overlay.appendChild(panel);
+  document.body.appendChild(overlay);
+
+  overlay.querySelector('.cat-popup-close').onclick = function() { overlay.remove(); };
+  overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+}
 
 // ═══ End i18n ═══
 
@@ -14842,7 +15026,7 @@ async function buildHomePage() {
     box.className = 'category-box';
     box.innerHTML = '<span class="cat-icon">' + (_catIcons[cat.id]||'📦') + '</span>' +
       '<span class="cat-name">' + cat.name.replace(/^[^\s]+ /, '') + '</span>' +
-      '<span class="cat-count">' + catTools.length + ' ابزار</span>';
+      '<span class="cat-count">' + catTools.length + ' ' + _tr('tools_count') + '</span>';
     box.onclick = function() { showCategoryPopup(cat.id, cat.name); };
     gridEl.appendChild(box);
   });
@@ -15026,7 +15210,7 @@ async function showTool(toolId) {
     const result = tool.render(toolDiv);
     if (result && result.nodeType) toolDiv.appendChild(result);
   } catch (err) {
-    toolDiv.innerHTML = `<div class="empty"><div class="icon">⚠️</div><p>خطا در بارگذاری ابزار</p><p style="font-size:.75rem;margin-top:8px">${err.message}</p></div>`;
+    toolDiv.innerHTML = `<div class="empty"><div class="icon">⚠️</div><p>${_tr('tool_load_error')}</p><p style="font-size:.75rem;margin-top:8px">${err.message}</p></div>`;
     console.error('Tool render error:', err);
   }
 }
@@ -15160,6 +15344,7 @@ function translateUI() {
   var set = function(id, key) { var el = document.getElementById(id); if (el) el.textContent = _tr(key); };
   var setPH = function(id, key) { var el = document.getElementById(id); if (el) el.placeholder = _tr(key); };
   set('bn-home', 'home'); set('bn-search', 'search_label'); set('bn-fav', 'favorites');
+  set('recentTitle', 'recent_used');
   setPH('sidebarSearch', 'search');
   var lb = document.getElementById('langBtn'); if (lb) lb.textContent = _tr('lang_switch');
   document.title = _tr('initializing');
