@@ -4423,70 +4423,86 @@ function renderDice(c) {
 // ─── 13. Sudoku ───
 function renderSudoku(c) {
   let puzzle=[],solution=[],userInput=[];
-  function generate(diff='easy') {
-    // Simple puzzle generation: start with a valid solved grid, then remove cells
-    const base=Array.from({length:9},()=>Array(9).fill(0));
-    // Fill diagonal 3x3 boxes first
-    for(let box=0;box<3;box++){const nums=shuffle([1,2,3,4,5,6,7,8,9]);let idx=0;for(let r=box*3;r<box*3+3;r++)for(let col=box*3;col<box*3+3;col++)base[r][col]=nums[idx++];}
-    // Simple backfill for remaining cells
-    function isValid(b,r,c2,n){for(let i=0;i<9;i++)if(b[r][i]===n||b[i][c2]===n)return false;const br=Math.floor(r/3)*3,bc=Math.floor(c2/3)*3;for(let dr=0;dr<3;dr++)for(let dc=0;dc<3;dc++)if(b[br+dr][bc+dc]===n)return false;return true;}
-    function solve(b){for(let r=0;r<9;r++)for(let c2=0;c2<9;c2++){if(!b[r][c2]){for(let n=1;n<=9;n++){if(isValid(b,r,c2,n)){b[r][c2]=n;if(solve(b))return true;b[r][c2]=0;}}return false;}}return true;}
+  function generate(diff) {
+    diff = diff || 'easy';
+    var base=Array.from({length:9},function(){return Array(9).fill(0);});
+    for(var box=0;box<3;box++){var nums=shuffle([1,2,3,4,5,6,7,8,9]);var idx=0;for(var r=box*3;r<box*3+3;r++)for(var cc=box*3;cc<box*3+3;cc++)base[r][cc]=nums[idx++];}
+    function isValid(b,r,cc,n){for(var i=0;i<9;i++)if(b[r][i]===n||b[i][cc]===n)return false;var br=Math.floor(r/3)*3,bc=Math.floor(cc/3)*3;for(var dr=0;dr<3;dr++)for(var dc=0;dc<3;dc++)if(b[br+dr][bc+dc]===n)return false;return true;}
+    function solve(b){for(var r=0;r<9;r++)for(var cc=0;cc<9;cc++){if(!b[r][cc]){for(var n=1;n<=9;n++){if(isValid(b,r,cc,n)){b[r][cc]=n;if(solve(b))return true;b[r][cc]=0;}}return false;}}return true;}
     solve(base);
-    solution=base.map(r=>[...r]);
-    // Remove cells
-    const remove=diff==='easy'?35:diff==='medium'?40:50;
-    puzzle=base.map(r=>[...r]);
-    let removed=0;
-    while(removed<remove){const r=randInt(0,8),c2=randInt(0,8);if(puzzle[r][c2]){puzzle[r][c2]=0;removed++;}}
-    userInput=puzzle.map(r=>[...r]);
+    solution=base.map(function(r){return r.slice();});
+    var remove=diff==='easy'?35:diff==='medium'?40:50;
+    puzzle=base.map(function(r){return r.slice();});
+    var removed=0;
+    while(removed<remove){var r2=randInt(0,8),c2=randInt(0,8);if(puzzle[r2][c2]){puzzle[r2][c2]=0;removed++;}}
+    userInput=puzzle.map(function(r){return r.slice();});
   }
+
   function render() {
-    const grid=c.querySelector('.sdk-grid');
+    var grid=c.querySelector('.sdk-grid');
     grid.innerHTML='';
-    var wrap=document.createElement('div');
-    wrap.style.cssText='width:100%;max-width:324px;margin:0 auto;display:grid;grid-template-columns:repeat(9,1fr);gap:0;border:2px solid var(--accent);border-radius:4px;overflow:hidden';
-    for(var r=0;r<9;r++){
-      for(var col2=0;col2<9;col2++){
-        var cell=document.createElement('div');
-        var bg2=puzzle[r][col2]?'rgba(255,255,255,.06)':'var(--bg)';
-        var bT='1px solid rgba(255,255,255,.12)';
-        var bB='1px solid rgba(255,255,255,.12)';
-        var bL='1px solid rgba(255,255,255,.12)';
-        var bR='1px solid rgba(255,255,255,.12)';
-        if(r%3===0) bT='2px solid var(--accent)';
-        if(col2%3===0) bL='2px solid var(--accent)';
-        if(r===8) bB='2px solid var(--accent)';
-        if(col2===8) bR='2px solid var(--accent)';
-        cell.style.cssText='aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:'+bg2+';border-top:'+bT+';border-left:'+bL+';border-bottom:'+bB+';border-right:'+bR+';box-sizing:border-box';
-        var inp=document.createElement('input');
-        inp.type='text';inp.maxLength=1;
-        inp.style.cssText='width:100%;height:100%;text-align:center;font-size:clamp(.8rem,3vw,1.1rem);font-weight:700;border:none;background:transparent;color:var(--text);outline:none;padding:0;margin:0';
-        if(puzzle[r][col2]){inp.value=puzzle[r][col2];inp.readOnly=true;inp.style.color='var(--text)';}
-        else{
-          inp.value=userInput[r][col2]||'';
-          (function(rr,cc){inp.oninput=function(){var v=parseInt(this.value);if(isNaN(v)||v<1||v>9){this.value='';return;}userInput[rr][cc]=v;};})(r,col2);
+
+    // Outer wrapper: 3x3 grid of BOXES
+    var outer=document.createElement('div');
+    outer.style.cssText='width:100%;max-width:320px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:2px;border-radius:6px;background:var(--accent)';
+
+    // 9 boxes, each is a 3x3 grid of cells
+    for(var boxR=0;boxR<3;boxR++){
+      for(var boxC=0;boxC<3;boxC++){
+        var box=document.createElement('div');
+        box.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);gap:0;background:var(--bg);border-radius:3px;overflow:hidden';
+
+        // 9 cells inside this box
+        for(var cellR=0;cellR<3;cellR++){
+          for(var cellC=0;cellC<3;cellC++){
+            var r=boxR*3+cellR;
+            var cc=boxC*3+cellC;
+            var cell=document.createElement('div');
+            var isGiven=puzzle[r][cc]!==0;
+            var bg=isGiven?'rgba(255,255,255,.08)':'rgba(255,255,255,.03)';
+            cell.style.cssText='aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:'+bg+';border:1px solid rgba(255,255,255,.15)';
+
+            var inp=document.createElement('input');
+            inp.type='text';inp.maxLength=1;
+            inp.style.cssText='width:100%;height:100%;text-align:center;font-size:clamp(.85rem,3.2vw,1.15rem);font-weight:700;border:none;background:transparent;color:var(--text);outline:none;padding:0;margin:0';
+            if(isGiven){
+              inp.value=puzzle[r][cc];
+              inp.readOnly=true;
+            } else {
+              inp.value=userInput[r][cc]||'';
+              (function(row,col){
+                inp.oninput=function(){
+                  var v=parseInt(this.value);
+                  if(isNaN(v)||v<1||v>9){this.value='';return;}
+                  userInput[row][col]=v;
+                };
+              })(r,cc);
+            }
+            cell.appendChild(inp);
+            box.appendChild(cell);
+          }
         }
-        cell.appendChild(inp);
-        wrap.appendChild(cell);
+        outer.appendChild(box);
       }
     }
-    grid.appendChild(wrap);
+    grid.appendChild(outer);
   }
+
   function validate() {
-    for(let r=0;r<9;r++) for(let col=0;col<9;col++){
-      if(userInput[r][col]!==solution[r][col]) { showToast('❌ خطا وجود دارد'); return; }
+    for(var r=0;r<9;r++) for(var cc=0;cc<9;cc++){
+      if(userInput[r][cc]!==solution[r][cc]) { showToast('❌ خطا وجود دارد'); return; }
     }
     showToast('🎉 آفرین! درست حل کردید!');
   }
-  c.innerHTML = `
-    <div class="chip-group"><button class="chip active" data-d="easy">آسان</button><button class="chip" data-d="medium">متوسط</button><button class="chip" data-d="hard">سخت</button></div>
-    <div class="sdk-grid" style="padding:4px 0;max-height:calc(100vh - 240px);overflow-y:auto"></div>
-    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:center"><button class="btn btn-success" style="flex:1;min-width:120px" id="sdkCheck">بررسی</button><button class="btn btn-primary" style="flex:1;min-width:120px" id="sdkNew">جدید</button></div>`;
-  c.querySelectorAll('.chip').forEach(b=>{b.onclick=()=>{c.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));b.classList.add('active');generate(b.dataset.d);render();};});
+
+  c.innerHTML = '<div class="chip-group"><button class="chip active" data-d="easy">آسان</button><button class="chip" data-d="medium">متوسط</button><button class="chip" data-d="hard">سخت</button></div><div class="sdk-grid" style="padding:6px 0;max-height:calc(100vh - 240px);overflow-y:auto"></div><div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:center"><button class="btn btn-success" style="flex:1;min-width:120px" id="sdkCheck">بررسی</button><button class="btn btn-primary" style="flex:1;min-width:120px" id="sdkNew">جدید</button></div>';
+  c.querySelectorAll('.chip').forEach(function(b){b.onclick=function(){c.querySelectorAll('.chip').forEach(function(x){x.classList.remove('active')});b.classList.add('active');generate(b.dataset.d);render();};});
   c.querySelector('#sdkCheck').onclick=validate;
-  c.querySelector('#sdkNew').onclick=()=>{generate('easy');render();};
-  generate('easy');render();
+  c.querySelector('#sdkNew').onclick=function(){generate('easy');render();};
+  generate('easy');
+  render();
 }
+
 
 // ─── 14. Rock Paper Scissors ───
 function renderRPS(c) {
