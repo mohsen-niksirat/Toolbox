@@ -89,7 +89,7 @@ html,body{
   height:100%;font-family:var(--font);background:var(--bg);color:var(--text);
   transition:background .3s,color .3s;-webkit-font-smoothing:antialiased;
   -webkit-tap-highlight-color:transparent;overflow-x:hidden;
-  overscroll-behavior:none;-webkit-overscroll-behavior:none;
+  overscroll-behavior-y:auto;-webkit-overscroll-behavior-y:auto;
   touch-action:pan-x pan-y pinch-zoom;
 }
 
@@ -15176,6 +15176,8 @@ async function showTool(toolId) {
   // Update UI
   homePage.style.display = 'none';
   toolPage.style.display = 'block';
+  document.body.style.overscrollBehavior = 'none';
+  document.documentElement.style.overscrollBehavior = 'none';
   pageTitle.textContent = tool.name;
 
   // Update active state in sidebar
@@ -15220,7 +15222,9 @@ function showHome() {
   closeCategoryPopup();
   homePage.style.display = 'block';
   toolPage.style.display = 'none';
-  pageTitle.textContent = 'خانه';
+  document.body.style.overscrollBehavior = '';
+  document.documentElement.style.overscrollBehavior = '';
+  pageTitle.textContent = _tr('home');
   sidebarNav.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
   buildHomePage();
   // Restore scroll position
@@ -15357,12 +15361,11 @@ function initTour() {
   var steps = ['tour_welcome','tour_step1','tour_step2','tour_step3','tour_step4','tour_step5'];
   var stepIdx = 0;
   var overlay = document.createElement('div');
-  overlay.id = '__tourOverlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center';
+  overlay.id = '__tourOverlay';    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;overflow:auto';
   function showStep() {
     overlay.innerHTML = '<div style="background:var(--card,#1a1d2b);border-radius:20px;padding:32px 24px;max-width:360px;text-align:center;color:var(--text,#e8eaed);animation:pageSlide .3s ease">'+
       '<div style="font-size:1.3rem;font-weight:800;margin-bottom:12px">' + _tr(steps[stepIdx]) + '</div>'+
-      '<div style="font-size:.8rem;color:var(--text2,#8b90a5);margin-bottom:20px">' + (stepIdx+1) + ' / ' + steps.length + '</div>'+
+      '<div style="font-size:.8rem;color:var(--text2,#8b90a5);margin-bottom:20px"><span style="direction:ltr;display:inline-block">' + (stepIdx+1) + ' / ' + steps.length + '</span></div>'+
       '<button class="btn btn-primary" id="__tourNext" style="width:100%">' + (stepIdx < steps.length-1 ? '▶ ادامه' : _tr('tour_done')) + '</button>'+
       '<button class="btn" id="__tourSkip" style="width:100%;margin-top:8px;font-size:.75rem">' + _tr('tour_done') + '</button>'+
     '</div>';
@@ -15391,10 +15394,19 @@ function initDiscovery() {
     toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9997;background:var(--card,#1a1d2b);border:2px solid var(--accent,#6c5ce7);border-radius:16px;padding:16px 20px;max-width:380px;width:90vw;box-shadow:0 8px 32px rgba(108,92,231,.3);animation:pageSlide .3s ease';
     toast.innerHTML = '<div style="font-weight:800;font-size:.9rem;color:var(--accent,#6c5ce7);margin-bottom:10px">' + _tr('discover') + '</div><div style="font-size:.75rem;color:var(--text2,#8b90a5);margin-bottom:10px">' + _tr('discover_desc') + '</div>' +
       picks.map(function(t) {
-        return '<div style="display:flex;align-items:center;gap:8px;padding:8px;margin:4px 0;background:var(--glass,rgba(255,255,255,.04));border-radius:8px;cursor:pointer;font-size:.82rem" onclick="navigate(\''+t.id+'\');this.parentElement.parentElement.remove()"><span style="font-size:1.2rem">'+t.icon+'</span><span style="font-weight:600">'+_toolName(t)+'</span></div>';
+        return '<div style="display:flex;align-items:center;gap:8px;padding:8px;margin:4px 0;background:var(--glass,rgba(255,255,255,.04));border-radius:8px;cursor:pointer;font-size:.82rem" data-tool="'+t.id+'"><span style="font-size:1.2rem">'+t.icon+'</span><span style="font-weight:600">'+_toolName(t)+'</span></div>';
       }).join('') +
-      '<button class="btn btn-ghost" style="width:100%;margin-top:8px;font-size:.7rem" onclick="this.parentElement.parentElement.remove()">✕ ' + _tr('tour_done') + '</button>';
+      '<button class="btn btn-ghost" style="width:100%;margin-top:8px;font-size:.7rem" id="__discoverClose">✕ ' + _tr('tour_done') + '</button>';
     document.body.appendChild(toast);
+    // Bind click handlers safely
+    toast.querySelectorAll('[data-tool]').forEach(function(el) {
+      el.onclick = function() {
+        var toolId = el.dataset.tool;
+        toast.remove();
+        navigate(toolId);
+      };
+    });
+    toast.querySelector('#__discoverClose').onclick = function() { toast.remove(); showHome(); };
     setTimeout(function() { if (toast.parentElement) toast.remove(); }, 15000);
   }, 2000);
 }
