@@ -295,7 +295,7 @@ input,select,textarea,button{font-family:inherit}
 .nav-item:active{transform:scale(.85)}
 
 /* ─── Tool Page ─── */
-.tool-page{animation:pageSlide .25s ease}
+.tool-page{animation:pageSlide .25s ease;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .tool-page .back-btn{
   display:inline-flex;align-items:center;gap:6px;padding:8px 16px;
   background:var(--glass2);border:1px solid var(--border);border-radius:10px;
@@ -512,15 +512,16 @@ input[type="color"]{
 .ttt-cell.win{background:var(--glass3);box-shadow:0 0 12px var(--accent)}
 
 /* Memory */
-.mem-board{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;max-width:280px;margin:8px auto}
+.mem-board{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;max-width:320px;margin:8px auto}
 .mem-card{
   aspect-ratio:1;display:flex;align-items:center;justify-content:center;
-  background:var(--glass2);border:1px solid var(--border);border-radius:8px;
-  font-size:1.3rem;cursor:pointer;transition:all .2s;user-select:none;
+  background:var(--glass2);border:1px solid var(--border);border-radius:10px;
+  cursor:pointer;transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .3s,background .3s;border-color:rgba(255,255,255,.08);user-select:none;
+  box-shadow:0 2px 6px rgba(0,0,0,.2);
 }
-.mem-card.flipped{background:var(--glass3);border-color:var(--accent)}
-.mem-card.matched{background:rgba(0,184,148,.15);border-color:var(--success)}
-.mem-card:active{transform:scale(.9)}
+.mem-card:active{transform:scale(.92)!important}
+.mem-card.flipped{box-shadow:0 0 15px rgba(108,92,231,.2)}
+.mem-card.matched{box-shadow:0 0 12px rgba(74,222,128,.2);transform:scale(.92);opacity:.7}
 
 /* Wordle */
 .wordle-board{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;max-width:260px;margin:8px auto}
@@ -3633,30 +3634,67 @@ registerTools(finTools);
 
 // ─── 1. Snake ───
 function renderSnake(c) {
-  var score = 0, dir = 'right', snake, food, interval, speed = 150, gameActive = false, highScore = parseInt(lsGet('snake_high', 0));
-  var COLS = 20, ROWS = 20, CELL = 15;
+  var score = 0, dir = 'right', snake, food, interval, speed = 120, gameActive = false, highScore = parseInt(lsGet('snake_high', 0));
+  var COLS = 20, ROWS = 20, CELL = Math.min(13, Math.floor((Math.min(window.innerWidth - 60, 320)) / 20));
   var W = COLS * CELL, H = ROWS * CELL;
+  var particles = [], frameId = null, lastTime = 0;
 
   c.innerHTML = `
-    <div style="display:flex;justify-content:center;gap:16px;margin-bottom:8px">
-      <div style="text-align:center"><div style="font-size:1.3rem;font-weight:900;color:#9bbc0f" id="snScore">0</div><div style="font-size:.6rem;color:var(--text2)">امتیاز</div></div>
-      <div style="text-align:center"><div style="font-size:1.3rem;font-weight:900;color:#9bbc0f" id="snHigh">` + highScore + `</div><div style="font-size:.6rem;color:var(--text2)">رکورد</div></div>
+    <div style="display:flex;justify-content:center;gap:20px;margin-bottom:10px">
+      <div style="text-align:center"><div style="font-size:1.5rem;font-weight:900;color:#4ade80" id="snScore">0</div><div style="font-size:.6rem;color:var(--text2)">امتیاز</div></div>
+      <div style="text-align:center"><div style="font-size:1.5rem;font-weight:900;color:#facc15" id="snHigh">` + highScore + `</div><div style="font-size:.6rem;color:var(--text2)">رکورد</div></div>
     </div>
     <div style="display:flex;justify-content:center">
-      <canvas id="snakeCanvas" width="${W}" height="${H}" style="border-radius:4px;image-rendering:pixelated;border:2px solid #3a3a3a;background:#0f380f"></canvas>
+      <canvas id="snakeCanvas" width="${W}" height="${H}" style="border-radius:12px;border:2px solid rgba(74,222,128,.3);background:#0a0a0a;box-shadow:0 0 30px rgba(74,222,128,.15);width:${W}px;height:${H}px;max-width:calc(100vw - 80px);max-height:calc(100vw - 80px)"></canvas>
     </div>
-    <div class="snake-controls" style="max-width:200px;margin:10px auto">
-      <div></div><button class="snake-btn" data-dir="up">▲</button><div></div>
-      <button class="snake-btn" data-dir="right">▶</button><button class="snake-btn" data-dir="down">▼</button><button class="snake-btn" data-dir="left">◀</button>
+    <div class="snake-controls" style="display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(2,52px);gap:4px;justify-content:center;margin:12px auto">
+      <div></div><button class="snake-btn" data-dir="up" style="font-size:1.2rem;border-radius:12px;background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.3);color:#4ade80">▲</button><div></div>
+      <button class="snake-btn" data-dir="left" style="font-size:1.2rem;border-radius:12px;background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.3);color:#4ade80">◀</button>
+      <button class="snake-btn" data-dir="down" style="font-size:1.2rem;border-radius:12px;background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.3);color:#4ade80">▼</button>
+      <button class="snake-btn" data-dir="right" style="font-size:1.2rem;border-radius:12px;background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.3);color:#4ade80">▶</button>
     </div>
-    <div style="text-align:center;margin-top:6px"><button class="btn btn-primary" id="snStart" style="font-size:.8rem;padding:8px 20px">شروع</button></div>`;
+    <div style="text-align:center;margin-top:6px"><button class="btn btn-primary" id="snStart" style="font-size:.85rem;padding:10px 28px;border-radius:10px">شروع بازی</button></div>`;
 
   var canvas = c.querySelector('#snakeCanvas');
   var ctx = canvas.getContext('2d');
 
+  // Particles
+  function spawnParticles(x, y, color, count) {
+    for (var i = 0; i < count; i++) {
+      particles.push({
+        x: x * CELL + CELL / 2, y: y * CELL + CELL / 2,
+        vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6,
+        life: 1, decay: 0.02 + Math.random() * 0.03,
+        size: 2 + Math.random() * 3, color: color
+      });
+    }
+  }
+  function updateParticles() {
+    for (var i = particles.length - 1; i >= 0; i--) {
+      var p = particles[i];
+      p.x += p.vx; p.y += p.vy;
+      p.life -= p.decay;
+      p.vx *= 0.96; p.vy *= 0.96;
+      if (p.life <= 0) particles.splice(i, 1);
+    }
+  }
+  function drawParticles() {
+    particles.forEach(function(p) {
+      ctx.globalAlpha = p.life;
+      ctx.fillStyle = p.color;
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
+  }
+
   function init() {
     snake = [{x:5,y:10},{x:4,y:10},{x:3,y:10}];
-    dir = 'right'; score = 0; speed = 150; gameActive = true;
+    dir = 'right'; score = 0; speed = 120; gameActive = true; particles = [];
     placeFood(); updateScore();
   }
   function placeFood() {
@@ -3668,39 +3706,77 @@ function renderSnake(c) {
   }
   function draw() {
     if (!snake || !food) return;
-    // Nokia LCD background
-    ctx.fillStyle = '#0f380f';
+    // Background with subtle gradient
+    var grd = ctx.createLinearGradient(0, 0, 0, H);
+    grd.addColorStop(0, '#0a1628');
+    grd.addColorStop(1, '#0a0a1a');
+    ctx.fillStyle = grd;
     ctx.fillRect(0, 0, W, H);
-    // Grid dots
-    ctx.fillStyle = '#1a4a1a';
-    for (var gx = 0; gx < COLS; gx++) for (var gy = 0; gy < ROWS; gy++) {
-      ctx.fillRect(gx * CELL, gy * CELL, CELL - 1, CELL - 1);
+    // Subtle grid
+    ctx.strokeStyle = 'rgba(74,222,128,.04)';
+    ctx.lineWidth = 0.5;
+    for (var gx = 0; gx <= COLS; gx++) {
+      ctx.beginPath(); ctx.moveTo(gx * CELL, 0); ctx.lineTo(gx * CELL, H); ctx.stroke();
     }
-    // Snake
-    for (var i = 0; i < snake.length; i++) {
+    for (var gy = 0; gy <= ROWS; gy++) {
+      ctx.beginPath(); ctx.moveTo(0, gy * CELL); ctx.lineTo(W, gy * CELL); ctx.stroke();
+    }
+    // Snake body with gradient
+    var t = Date.now();
+    for (var i = snake.length - 1; i >= 0; i--) {
       var s = snake[i];
-      ctx.fillStyle = i === 0 ? '#9bbc0f' : '#8bac0f';
-      ctx.fillRect(s.x * CELL, s.y * CELL, CELL - 1, CELL - 1);
-      // Nokia-style pixel eyes on head
+      var ratio = i / Math.max(snake.length - 1, 1);
+      var r = Math.round(74 - ratio * 30);
+      var g = Math.round(222 - ratio * 100);
+      var b = Math.round(128 - ratio * 40);
+      var clr = 'rgb(' + r + ',' + g + ',' + b + ')';
+      var pad = i === 0 ? 1 : 2;
+      var radius = i === 0 ? 5 : 3;
+      // Glow for head
       if (i === 0) {
-        ctx.fillStyle = '#0f380f';
-        if (dir === 'right' || dir === 'left') {
-          ctx.fillRect(s.x * CELL + (dir === 'right' ? 9 : 2), s.y * CELL + 3, 2, 2);
-          ctx.fillRect(s.x * CELL + (dir === 'right' ? 9 : 2), s.y * CELL + 9, 2, 2);
-        } else {
-          ctx.fillRect(s.x * CELL + 3, s.y * CELL + (dir === 'down' ? 9 : 2), 2, 2);
-          ctx.fillRect(s.x * CELL + 9, s.y * CELL + (dir === 'down' ? 9 : 2), 2, 2);
-        }
+        ctx.shadowColor = '#4ade80';
+        ctx.shadowBlur = 15 + Math.sin(t / 200) * 5;
+      }
+      ctx.fillStyle = clr;
+      ctx.beginPath();
+      ctx.roundRect(s.x * CELL + pad, s.y * CELL + pad, CELL - pad * 2, CELL - pad * 2, radius);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      // Eyes on head
+      if (i === 0) {
+        ctx.fillStyle = '#0a0a1a';
+        var ex1, ey1, ex2, ey2;
+        var cx = s.x * CELL + CELL / 2, cy = s.y * CELL + CELL / 2;
+        if (dir === 'right') { ex1 = cx + 3; ey1 = cy - 3; ex2 = cx + 3; ey2 = cy + 3; }
+        else if (dir === 'left') { ex1 = cx - 3; ey1 = cy - 3; ex2 = cx - 3; ey2 = cy + 3; }
+        else if (dir === 'up') { ex1 = cx - 3; ey1 = cy - 3; ex2 = cx + 3; ey2 = cy - 3; }
+        else { ex1 = cx - 3; ey1 = cy + 3; ex2 = cx + 3; ey2 = cy + 3; }
+        ctx.beginPath(); ctx.arc(ex1, ey1, 2, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(ex2, ey2, 2, 0, Math.PI * 2); ctx.fill();
+        // Eye shine
+        ctx.fillStyle = '#fff';
+        ctx.beginPath(); ctx.arc(ex1 + 0.5, ey1 - 0.5, 0.8, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(ex2 + 0.5, ey2 - 0.5, 0.8, 0, Math.PI * 2); ctx.fill();
       }
     }
-    // Food - Nokia style blinking dot
-    ctx.fillStyle = '#9bbc0f';
-    var pulse = Math.floor(Date.now() / 300) % 2;
-    if (pulse) {
-      ctx.fillRect(food.x * CELL + 2, food.y * CELL + 2, CELL - 5, CELL - 5);
-    } else {
-      ctx.fillRect(food.x * CELL + 4, food.y * CELL + 4, CELL - 9, CELL - 9);
-    }
+    // Food - glowing orb
+    var fx = food.x * CELL + CELL / 2, fy = food.y * CELL + CELL / 2;
+    var pulse = 1 + Math.sin(t / 200) * 0.15;
+    ctx.shadowColor = '#f43f5e';
+    ctx.shadowBlur = 20 + Math.sin(t / 150) * 8;
+    ctx.fillStyle = '#f43f5e';
+    ctx.beginPath();
+    ctx.arc(fx, fy, (CELL / 2 - 3) * pulse, 0, Math.PI * 2);
+    ctx.fill();
+    // Inner glow
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#fda4af';
+    ctx.beginPath();
+    ctx.arc(fx - 1.5, fy - 1.5, 2, 0, Math.PI * 2);
+    ctx.fill();
+    // Particles
+    updateParticles();
+    drawParticles();
   }
   function step() {
     if (!gameActive) return;
@@ -3709,24 +3785,28 @@ function renderSnake(c) {
     if (dir === 'down') head.y++;
     if (dir === 'left') head.x--;
     if (dir === 'right') head.x++;
-    // Wall collision (wrap around like Nokia)
     if (head.x < 0) head.x = COLS - 1;
     if (head.x >= COLS) head.x = 0;
     if (head.y < 0) head.y = ROWS - 1;
     if (head.y >= ROWS) head.y = 0;
-    // Self collision
     if (snake.some(function(s) { return s.x === head.x && s.y === head.y; })) {
       gameActive = false; clearInterval(interval);
-      const _ss=JSON.parse(localStorage.getItem('tp_snake_scores')||'[]');_ss.push({score,time:Date.now()});if(_ss.length>10)_ss.splice(0,_ss.length-10);localStorage.setItem('tp_snake_scores',JSON.stringify(_ss));
-      if (score > highScore) { highScore = score; lsSet('snake_high', highScore); c.querySelector('#snHigh').textContent = highScore; showToast('رکورد جدید! ' + score); }
-      else { showToast('بازی تمام شد! امتیاز: ' + score); }
+      spawnParticles(snake[0].x, snake[0].y, '#f43f5e', 15);
+      draw();
+      var _ss = JSON.parse(localStorage.getItem('tp_snake_scores') || '[]');
+      _ss.push({score: score, time: Date.now()});
+      if (_ss.length > 10) _ss.splice(0, _ss.length - 10);
+      localStorage.setItem('tp_snake_scores', JSON.stringify(_ss));
+      if (score > highScore) { highScore = score; lsSet('snake_high', highScore); c.querySelector('#snHigh').textContent = highScore; showToast('🏆 رکورد جدید! ' + score); }
+      else { showToast('💥 بازی تمام شد! امتیاز: ' + score); }
       return;
     }
     snake.unshift(head);
     if (head.x === food.x && head.y === food.y) {
       score += 10;
+      spawnParticles(food.x, food.y, '#4ade80', 10);
       placeFood(); updateScore();
-      if (speed > 60) { speed -= 3; clearInterval(interval); interval = setInterval(step, speed); }
+      if (speed > 50) { speed -= 3; clearInterval(interval); interval = setInterval(step, speed); }
     } else { snake.pop(); }
     draw();
   }
@@ -3741,7 +3821,6 @@ function renderSnake(c) {
       if (d === 'right' && dir !== 'left') dir = 'right';
     };
   });
-  // Direct arrow keys - NO RTL swap for canvas
   document.addEventListener('keydown', function handler(e) {
     if (!c.isConnected) { document.removeEventListener('keydown', handler); return; }
     if (e.key === 'ArrowUp' && dir !== 'down') dir = 'up';
@@ -3750,7 +3829,6 @@ function renderSnake(c) {
     if (e.key === 'ArrowRight' && dir !== 'left') dir = 'right';
     if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
   });
-  // Touch swipe
   var tx, ty;
   canvas.addEventListener('touchstart', function(e) { e.preventDefault(); tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: false });
   canvas.addEventListener('touchend', function(e) {
@@ -3772,12 +3850,13 @@ function renderSnake(c) {
 // ─── 2. 2048 ───
 function render2048(c) {
   var grid, score, highScore = parseInt(lsGet('g2048_high', 0));
-  var COLORS = {0:'transparent',2:'#eee4da',4:'#ede0c8',8:'#f2b179',16:'#f59563',32:'#f67c5f',64:'#f65e3b',128:'#edcf72',256:'#edcc61',512:'#edc850',1024:'#edc53f',2048:'#edc22e',4096:'#3c3a32',8192:'#3c3a32'};
-  var tileEls = [];
+  var COLORS = {0:'transparent',2:'#eee4da',4:'#ede0c8',8:'#f2b179',16:'#f59563',32:'#f67c5f',64:'#f65e3b',128:'#edcf72',256:'#edcc61',512:'#edc850',1024:'#edc53f',2048:'#edc22e',4096:'#c0392b',8192:'#8e44ad'};
+  var TILE_COLORS = {0:'transparent',2:'linear-gradient(135deg,#eee4da,#f5e6d3)',4:'linear-gradient(135deg,#ede0c8,#f0dbb8)',8:'linear-gradient(135deg,#f2b179,#e89f5c)',16:'linear-gradient(135deg,#f59563,#e07b49)',32:'linear-gradient(135deg,#f67c5f,#e06046)',64:'linear-gradient(135deg,#f65e3b,#d94b25)',128:'linear-gradient(135deg,#edcf72,#dbb958)',256:'linear-gradient(135deg,#edcc61,#d9b44f)',512:'linear-gradient(135deg,#edc850,#d5af3c)',1024:'linear-gradient(135deg,#edc53f,#d1ac30)',2048:'linear-gradient(135deg,#edc22e,#cda220)',4096:'linear-gradient(135deg,#c0392b,#962d22)',8192:'linear-gradient(135deg,#8e44ad,#6c3483)'};
+  var tileEls = [], _firstRender = true;
   function init() {
     grid = Array.from({length:4}, function() { return Array(4).fill(0); });
-    score = 0;
-    addTile(); addTile(); render();
+    score = 0; _firstRender = true;
+    addTile(); addTile(); render(); _firstRender = false;
   }
   function addTile() {
     var empty = [];
@@ -3797,19 +3876,21 @@ function render2048(c) {
         var prev = parseInt(el.dataset.value) || 0;
         el.dataset.value = v;
         el.textContent = v || '';
-        el.style.background = COLORS[v] || '#2d2d5e';
+        el.style.background = TILE_COLORS[v] || COLORS[v] || '#2d2d5e';
         el.style.color = (v <= 4) ? '#776e65' : '#fff';
-        el.style.fontSize = v >= 1024 ? '.75rem' : v >= 128 ? '.9rem' : '1.1rem';
+        el.style.fontSize = v >= 1024 ? '.75rem' : v >= 128 ? '.85rem' : '1.1rem';
+        el.style.textShadow = v > 4 ? '0 1px 3px rgba(0,0,0,.3)' : 'none';
+        el.style.boxShadow = v ? '0 2px 8px ' + (COLORS[v] || 'rgba(0,0,0,.15)') + '40' : 'none';
         // Pop animation for new/merged tiles
-        if (v > prev && v > 0) {
-          el.style.transform = 'scale(1.15)';
+        if (v > prev && v > 0 && !_firstRender) {
           el.style.transition = 'none';
-          requestAnimationFrame(function() {
-            requestAnimationFrame(function() {
-              el.style.transition = 'transform 0.15s ease';
-              el.style.transform = 'scale(1)';
-            });
-          });
+          el.style.transform = 'scale(0)';
+          setTimeout(function(el2) {
+            return function() {
+              el2.style.transition = 'transform 0.25s cubic-bezier(.34,1.56,.64,1)';
+              el2.style.transform = 'scale(1)';
+            };
+          }(el), 20);
         }
       }
     }
@@ -3876,7 +3957,7 @@ function render2048(c) {
       <div style="text-align:center;background:var(--glass2);padding:8px 20px;border-radius:10px"><div style="font-size:1.3rem;font-weight:900;color:var(--accent)" id="gScore">0</div><div style="font-size:.6rem;color:var(--text2)">امتیاز</div></div>
       <div style="text-align:center;background:var(--glass2);padding:8px 20px;border-radius:10px"><div style="font-size:1.3rem;font-weight:900;color:var(--accent)" id="gHigh">0</div><div style="font-size:.6rem;color:var(--text2)">رکورد</div></div>
     </div>
-    <div class="grid-2048" id="g2048grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-width:320px;margin:8px auto;padding:8px;background:var(--glass);border-radius:12px;border:1px solid var(--border)"></div>
+    <div class="grid-2048" id="g2048grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-width:320px;margin:8px auto;padding:10px;background:linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border-radius:14px;border:1px solid var(--border);box-shadow:inset 0 2px 8px rgba(0,0,0,.2)"></div>
     <div style="text-align:center;margin-top:8px"><button class="btn btn-primary" id="g2048New">بازی جدید</button></div>`;
   // Create tile elements
   var gridEl = c.querySelector('#g2048grid');
@@ -3884,7 +3965,7 @@ function render2048(c) {
     var tile = document.createElement('div');
     tile.className = 'tile-2048';
     tile.dataset.value = '0';
-    tile.style.cssText = 'aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-weight:900;font-size:1.1rem;background:transparent;color:var(--text);transition:all 0.12s ease;';
+    tile.style.cssText = 'aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:10px;font-weight:900;font-size:1.1rem;background:transparent;color:var(--text);transition:all 0.15s ease;box-shadow:none;';
     gridEl.appendChild(tile);
     tileEls.push(tile);
   }
@@ -3960,26 +4041,38 @@ function renderTTT(c) {
 
 // ─── 4. Memory ───
 function renderMemory(c) {
-  const emojis=['🍎','🍊','🍋','🍇','🍉','🍓','🍑','🍒'];
-  let cards,flipped,matched,moves,startTime;
-  function init() {
-    const pairs=[...emojis,...emojis]; cards=shuffle(pairs);
-    flipped=new Set(); matched=new Set(); moves=0; startTime=Date.now();
+  const emojis=['🍎','🍊','🍋','🍇','🍉','🍓','🍑','🍒','🫐','🥝','🥑','🫒'];
+  let cards,flipped,matched,moves,startTime,size=4;
+  function init(sz) {
+    size=sz||4;
+    var pairCount=(size*size)/2;
+    var chosen=shuffle([...emojis]).slice(0,pairCount);
+    var pairs=[...chosen,...chosen];
+    cards=shuffle(pairs);
+    flipped=new Set();matched=new Set();moves=0;startTime=Date.now();
     render();
   }
   function render() {
     c.querySelector('#memMoves').textContent=moves;
     c.querySelector('#memTime').textContent=Math.floor((Date.now()-startTime)/1000)+'s';
+    c.querySelector('#memBest').textContent=size===4?'4×4':size===6?'6×6':'8×8';
     const board=c.querySelector('.mem-board');
+    board.style.gridTemplateColumns='repeat('+size+',1fr)';
     board.innerHTML='';
     cards.forEach((emoji,i)=>{
       const card=document.createElement('div');
-      card.className='mem-card'+(flipped.has(i)?' flipped':'')+(matched.has(i)?' matched':'');
-      card.textContent=(flipped.has(i)||matched.has(i))?emoji:'❓';
+      const isFlipped=flipped.has(i)||matched.has(i);
+      const isMatched=matched.has(i);
+      card.className='mem-card'+(isFlipped?' flipped':'')+(isMatched?' matched':'');
+      card.style.cssText='aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:10px;font-size:'+(size>6?'1rem':size>4?'1.3rem':'1.6rem')+';cursor:pointer;position:relative;transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .3s;'+
+        (isMatched?'background:linear-gradient(135deg,rgba(74,222,128,.15),rgba(74,222,128,.05));border:1px solid rgba(74,222,128,.3);box-shadow:0 0 12px rgba(74,222,128,.2);transform:scale(.92);opacity:.7;':
+        isFlipped?'background:linear-gradient(135deg,rgba(108,92,231,.2),rgba(108,92,231,.08));border:1px solid rgba(108,92,231,.3);box-shadow:0 0 15px rgba(108,92,231,.2);':
+        'background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.08);box-shadow:0 2px 6px rgba(0,0,0,.2);');
+      card.textContent=isFlipped?emoji:'❓';
       card.onclick=()=>flip(i);
       board.appendChild(card);
     });
-    if(matched.size===cards.length) showToast('🎉 آفرین! همه جفت‌ها پیدا شد!');
+    if(matched.size===cards.length) showToast('🎉 آفرین! '+moves+' حرکت!');
   }
   function flip(i) {
     if(flipped.has(i)||matched.has(i)||flipped.size>=2) return;
@@ -3987,15 +4080,35 @@ function renderMemory(c) {
     if(flipped.size===2) {
       moves++;
       const [a,b]=[...flipped];
-      if(cards[a]===cards[b]) { matched.add(a); matched.add(b); flipped.clear(); render(); }
-      else setTimeout(()=>{flipped.clear();render();},800);
+      if(cards[a]===cards[b]) {
+        matched.add(a);matched.add(b);flipped.clear();
+        showToast('✨ جفت پیدا شد! '+cards[a]);
+        render();
+      }
+      else setTimeout(()=>{flipped.clear();render();},700);
     }
   }
   c.innerHTML = `
-    <div class="game-score"><div class="game-score-item"><div class="game-score-num" id="memMoves">0</div><div class="game-score-label">حرکات</div></div><div class="game-score-item"><div class="game-score-num" id="memTime">0s</div><div class="game-score-label">زمان</div></div></div>
-    <div class="mem-board">${'<div class="mem-card">❓</div>'.repeat(16)}</div>
+    <div class="game-score">
+      <div class="game-score-item"><div class="game-score-num" id="memMoves">0</div><div class="game-score-label">حرکات</div></div>
+      <div class="game-score-item"><div class="game-score-num" id="memTime">0s</div><div class="game-score-label">زمان</div></div>
+      <div class="game-score-item"><div class="game-score-num" id="memBest">4×4</div><div class="game-score-label">سایز</div></div>
+    </div>
+    <div style="display:flex;justify-content:center;gap:6px;margin-bottom:10px">
+      <button class="chip mem-size-btn" data-size="4">4×4</button>
+      <button class="chip mem-size-btn" data-size="6">6×6</button>
+      <button class="chip mem-size-btn" data-size="8">8×8</button>
+    </div>
+    <div class="mem-board"></div>
     <div style="text-align:center;margin-top:10px"><button class="btn btn-primary" id="memNew">بازی جدید</button></div>`;
-  c.querySelector('#memNew').onclick=init;
+  c.querySelectorAll('.mem-size-btn').forEach(function(b){
+    b.onclick=function(){
+      c.querySelectorAll('.mem-size-btn').forEach(function(x){x.classList.remove('active')});
+      b.classList.add('active');
+      init(parseInt(b.dataset.size));
+    };
+  });
+  c.querySelector('#memNew').onclick=function(){init(size);};
   init();
 }
 
@@ -4131,18 +4244,38 @@ function renderMinesweeper(c) {
   }
   function revealAll(){for(let y=0;y<rows;y++)for(let x=0;x<cols;x++)revealed[y][x]=true;render();}
   function checkWin(){let cnt=0;for(let y=0;y<rows;y++)for(let x=0;x<cols;x++)if(revealed[y][x])cnt++;if(cnt===rows*cols-mineCount){gameOver=true;showToast('🎉 بردید!');}}
+  const NUM_COLORS=['','#6c5ce7','#00b894','#e94560','#2d3436','#a855f7','#0ea5e9','#f97316','#636e72'];
+  const NUM_BG=['','rgba(108,92,231,.12)','rgba(0,184,148,.12)','rgba(233,69,96,.12)','rgba(45,52,54,.12)','rgba(168,85,247,.12)','rgba(14,165,233,.12)','rgba(249,115,22,.12)','rgba(99,110,114,.12)'];
   function render() {
     const grid=c.querySelector('.ms-grid');
     grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
     grid.innerHTML='';
+    const cellSize = Math.max(22, Math.min(32, Math.floor(320/cols)));
     for(let y=0;y<rows;y++) for(let x=0;x<cols;x++){
       const cell=document.createElement('div');
-      cell.style.cssText='aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:.7rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--glass2);min-width:24px';
-      if(revealed[y][x]){cell.style.background=board[y][x]===-1?'rgba(233,69,96,.3)':'var(--glass)';cell.textContent=board[y][x]===-1?'💣':(board[y][x]||'');const colors=['','#6c5ce7','#00b894','#e94560','#6c5ce7','#fdcb6e','#00b894','#e94560','#8b90a5'];if(board[y][x]>0)cell.style.color=colors[board[y][x]];}
-      else if(flagged[y][x]) cell.textContent='🚩';
+      const isRev = revealed[y][x];
+      const val = board[y][x];
+      cell.style.cssText=`aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:${cols>16?'.6rem':'.75rem'};font-weight:800;cursor:pointer;min-width:${cellSize}px;transition:all .15s ease;`;
+      if(isRev){
+        if(val===-1) {
+          cell.style.background='linear-gradient(135deg,rgba(233,69,96,.4),rgba(233,69,96,.2))';
+          cell.style.border='1px solid rgba(233,69,96,.5)';
+          cell.textContent='💣';
+        } else {
+          cell.style.background=val>0?NUM_BG[val]:'rgba(255,255,255,.03)';
+          cell.style.border='1px solid rgba(255,255,255,.06)';
+          cell.textContent=val||'';
+          if(val>0){cell.style.color=NUM_COLORS[val];cell.style.textShadow='0 0 8px '+NUM_COLORS[val]+'40';}
+        }
+      } else {
+        cell.style.background='linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.03))';
+        cell.style.border='1px solid rgba(255,255,255,.08)';
+        cell.style.boxShadow='0 1px 3px rgba(0,0,0,.2)';
+        if(flagged[y][x]) { cell.textContent='🚩'; cell.style.background='rgba(249,115,22,.15)'; cell.style.border='1px solid rgba(249,115,22,.3)'; }
+        cell.onmousedown = (e) => { e.preventDefault(); };
+      }
       cell.onclick=()=>{if(firstClick){firstClick=false;placeMines(x,y);}reveal(x,y);checkWin();render();};
       cell.oncontextmenu=(e)=>{e.preventDefault();if(!revealed[y][x]){flagged[y][x]=!flagged[y][x];render();}};
-      // long press for mobile flag
       let lt;cell.ontouchstart=(e)=>{lt=setTimeout(()=>{if(!revealed[y][x]){flagged[y][x]=!flagged[y][x];render();}},500);};cell.ontouchend=()=>clearTimeout(lt);
       grid.appendChild(cell);
     }
@@ -4572,7 +4705,7 @@ function renderChess(c) {
 
 // ─── 16. Tetris ───
 function renderTetris(c) {
-  const COLS=10, ROWS=20;
+  const COLS=10, ROWS=20, CSIZE=Math.min(20, Math.floor((window.innerWidth - 120) / 10));
   const SHAPES = {
     I:[[1,1,1,1]],
     O:[[1,1],[1,1]],
@@ -4583,6 +4716,7 @@ function renderTetris(c) {
     L:[[0,0,1],[1,1,1]]
   };
   const COLORS = {I:'#00cec9',O:'#fdcb6e',T:'#6c5ce7',S:'#00b894',Z:'#e94560',J:'#0984e3',L:'#e17055'};
+  const GLOW = {I:'rgba(0,206,201,.5)',O:'rgba(253,203,110,.5)',T:'rgba(108,92,231,.5)',S:'rgba(0,184,148,.5)',Z:'rgba(233,69,96,.5)',J:'rgba(9,132,227,.5)',L:'rgba(225,112,85,.5)'};
   let grid, piece, pieceX, pieceY, pieceType, nextType, score, level, lines, interval, gameOver, paused;
   function init() {
     grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));
@@ -4649,31 +4783,96 @@ function renderTetris(c) {
     c.querySelector('#tetLevel').textContent=level;
     c.querySelector('#tetLines').textContent=lines;
   }
+  function getGhostY() {
+    var gy = pieceY;
+    while (!collides(piece, pieceX, gy + 1)) gy++;
+    return gy;
+  }
   function render() {
     if(gameOver) return;
     updateScore();
-    // next piece preview
-    const np=c.querySelector('#tetNext');
-    np.innerHTML='';
-    const nShape=SHAPES[nextType];
-    for(let r=0;r<2;r++) for(let col=0;col<4;col++) {
-      const cell=document.createElement('div');
-      cell.style.cssText='width:16px;height:16px;border-radius:2px;';
-      if(nShape[r]&&nShape[r][col]) cell.style.background=COLORS[nextType];
-      else cell.style.background='transparent';
-      np.appendChild(cell);
+    // Draw on canvas for better performance
+    var cvs = c.querySelector('#tetCanvas');
+    if (!cvs) return;
+    var ctx = cvs.getContext('2d');
+    var W = COLS * CSIZE, H = ROWS * CSIZE;
+    cvs.width = W; cvs.height = H;
+    // Background
+    ctx.fillStyle = '#0a0a1a';
+    ctx.fillRect(0, 0, W, H);
+    // Grid lines
+    ctx.strokeStyle = 'rgba(255,255,255,.03)';
+    ctx.lineWidth = 0.5;
+    for (var gx = 0; gx <= COLS; gx++) { ctx.beginPath(); ctx.moveTo(gx*CSIZE,0); ctx.lineTo(gx*CSIZE,H); ctx.stroke(); }
+    for (var gy = 0; gy <= ROWS; gy++) { ctx.beginPath(); ctx.moveTo(0,gy*CSIZE); ctx.lineTo(W,gy*CSIZE); ctx.stroke(); }
+    // Ghost piece
+    var ghostY = getGhostY();
+    if (ghostY !== pieceY) {
+      for (var r = 0; r < piece.length; r++) for (var col = 0; col < piece[r].length; col++) {
+        if (!piece[r][col]) continue;
+        var gx2 = (pieceX+col)*CSIZE, gy2 = (ghostY+r)*CSIZE;
+        ctx.strokeStyle = COLORS[pieceType];
+        ctx.globalAlpha = 0.25;
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(gx2+2, gy2+2, CSIZE-4, CSIZE-4);
+        ctx.globalAlpha = 1;
+      }
     }
-    np.style.cssText='display:grid;grid-template-columns:repeat(4,16px);gap:1px;justify-content:center;margin-top:4px';
-    const gridEl=c.querySelector('#tetGrid');
-    gridEl.innerHTML='';
-    for(let r=0;r<ROWS;r++) for(let col=0;col<COLS;col++) {
-      const cell=document.createElement('div');
-      let bg=grid[r][col]?COLORS[grid[r][col]]:'var(--glass2)';
-      // draw current piece
-      const pr=r-pieceY, pc=col-pieceX;
-      if(pr>=0&&pr<piece.length&&pc>=0&&pc<piece[0].length&&piece[pr][pc]) bg=COLORS[pieceType];
-      cell.style.cssText=`background:${bg};border-radius:2px;aspect-ratio:1;`;
-      gridEl.appendChild(cell);
+    // Locked cells
+    for (var r = 0; r < ROWS; r++) for (var col = 0; col < COLS; col++) {
+      if (!grid[r][col]) continue;
+      var clr = COLORS[grid[r][col]];
+      var x = col*CSIZE, y = r*CSIZE;
+      ctx.fillStyle = clr;
+      ctx.shadowColor = GLOW[grid[r][col]] || 'transparent';
+      ctx.shadowBlur = 6;
+      ctx.beginPath();
+      ctx.roundRect(x+1, y+1, CSIZE-2, CSIZE-2, 3);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      // Inner highlight
+      ctx.fillStyle = 'rgba(255,255,255,.15)';
+      ctx.beginPath();
+      ctx.roundRect(x+2, y+2, CSIZE-4, (CSIZE-4)/2, 2);
+      ctx.fill();
+    }
+    // Current piece
+    for (var r = 0; r < piece.length; r++) for (var col = 0; col < piece[r].length; col++) {
+      if (!piece[r][col]) continue;
+      var px = (pieceX+col)*CSIZE, py = (pieceY+r)*CSIZE;
+      ctx.fillStyle = COLORS[pieceType];
+      ctx.shadowColor = GLOW[pieceType];
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.roundRect(px+1, py+1, CSIZE-2, CSIZE-2, 3);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      // Inner highlight
+      ctx.fillStyle = 'rgba(255,255,255,.2)';
+      ctx.beginPath();
+      ctx.roundRect(px+2, py+2, CSIZE-4, (CSIZE-4)/2, 2);
+      ctx.fill();
+    }
+    // Next piece preview on mini canvas
+    var ncv = c.querySelector('#tetNextCanvas');
+    if (ncv) {
+      var nctx = ncv.getContext('2d');
+      ncv.width = 80; ncv.height = 40;
+      nctx.fillStyle = '#0a0a1a';
+      nctx.fillRect(0, 0, 80, 40);
+      var nShape = SHAPES[nextType];
+      var nOffX = (80 - nShape[0].length * 16) / 2;
+      var nOffY = (40 - nShape.length * 16) / 2;
+      for (var r = 0; r < nShape.length; r++) for (var col = 0; col < nShape[r].length; col++) {
+        if (!nShape[r][col]) continue;
+        nctx.fillStyle = COLORS[nextType];
+        nctx.shadowColor = GLOW[nextType];
+        nctx.shadowBlur = 6;
+        nctx.beginPath();
+        nctx.roundRect(nOffX+col*16+1, nOffY+r*16+1, 14, 14, 2);
+        nctx.fill();
+        nctx.shadowBlur = 0;
+      }
     }
   }
   document.addEventListener("keydown", function handler(e) {
@@ -4692,10 +4891,10 @@ function renderTetris(c) {
       <div class="game-score-item"><div class="game-score-num" id="tetLines">0</div><div class="game-score-label">خط</div></div>
     </div>
     <div style="display:flex;gap:12px;justify-content:center;align-items:flex-start">
-      <div id="tetGrid" style="display:grid;grid-template-columns:repeat(${COLS},1fr);gap:1px;width:200px;border:1px solid var(--border);border-radius:6px;overflow:hidden;padding:2px;background:var(--bg)"></div>
+      <canvas id="tetCanvas" width="${COLS*CSIZE}" height="${ROWS*CSIZE}" style="border:1px solid var(--border);border-radius:8px;image-rendering:pixelated;box-shadow:0 0 20px rgba(108,92,231,.15);width:${COLS*CSIZE}px;height:${ROWS*CSIZE}px;max-width:100%"></canvas>
       <div style="text-align:center">
         <div style="font-size:.75rem;color:var(--text2);margin-bottom:4px">بعدی</div>
-        <div id="tetNext"></div>
+        <canvas id="tetNextCanvas" width="80" height="40" style="border-radius:6px;border:1px solid var(--border)"></canvas>
       </div>
     </div>
     <div style="display:flex;justify-content:center;gap:8px;margin-top:10px">
@@ -15176,6 +15375,10 @@ async function showTool(toolId) {
   // Update UI
   homePage.style.display = 'none';
   toolPage.style.display = 'block';
+  toolPage.style.height = '';
+  toolPage.style.maxHeight = 'calc(100vh - 60px)';
+  toolPage.style.overflowY = 'auto';
+  toolPage.style.webkitOverflowScrolling = 'touch';
   document.body.style.overscrollBehavior = 'none';
   document.documentElement.style.overscrollBehavior = 'none';
   pageTitle.textContent = tool.name;
@@ -15222,6 +15425,8 @@ function showHome() {
   closeCategoryPopup();
   homePage.style.display = 'block';
   toolPage.style.display = 'none';
+  toolPage.style.height = '';
+  toolPage.style.overflowY = '';
   document.body.style.overscrollBehavior = '';
   document.documentElement.style.overscrollBehavior = '';
   pageTitle.textContent = _tr('home');
