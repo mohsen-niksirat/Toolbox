@@ -4914,12 +4914,12 @@ function renderTetris(c) {
 
   // ─── Touch/Swipe on grid ───
   var tsX=0, tsY=0;
-  c.querySelector('#tetGrid').addEventListener('touchstart', function(e) {
+  (c.querySelector('#tetCanvas') || c).addEventListener('touchstart', function(e) {
     if (gameOver || paused) return;
     tsX = e.touches[0].clientX; tsY = e.touches[0].clientY;
     e.preventDefault();
   }, {passive: false});
-  c.querySelector('#tetGrid').addEventListener('touchend', function(e) {
+  (c.querySelector('#tetCanvas') || c).addEventListener('touchend', function(e) {
     if (gameOver || paused) return;
     var dx = (e.changedTouches[0].clientX - tsX);
     var dy = (e.changedTouches[0].clientY - tsY);
@@ -5583,7 +5583,6 @@ function renderWordGuess(c) {
     guesses = []; maxGuesses = 6; won = false; lost = false;
     highScore = parseInt(lsGet('wordguess_high',0))||0;
     score = 0;
-    c.querySelector('#wgHigh').textContent = highScore;
     render();
   }
   function guess(letter) {
@@ -15371,8 +15370,8 @@ async function showTool(toolId) {
     return;
   }
 
-  // Track recent
-  await addRecent(toolId);
+  // Track recent (safe - don't block on errors)
+  try { await addRecent(toolId); } catch(e) { console.warn('addRecent:', e); }
 
   // Update UI
   homePage.style.display = 'none';

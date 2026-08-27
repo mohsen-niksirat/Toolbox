@@ -3,7 +3,7 @@
 // Enhanced: cache-first smart, IndexedDB persist, Notification API, background sync
 // ═══════════════════════════════════════════════
 
-const CACHE_NAME = 'toolbox-pro-v1.2.1';
+const CACHE_NAME = 'toolbox-pro-v1.2.3';
 const RUNTIME_CACHE = 'toolbox-runtime-v4';
 const OFFLINE_RESPONSE = new Response('آفلاین هستید 😕', { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
 
