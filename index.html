@@ -5438,8 +5438,8 @@ function renderPong(c) {
     if (ball.x + BALL_R > p2.x && ball.x < p2.x + PAD_W && ball.y > p2.y && ball.y < p2.y + PAD_H && ball.dx > 0) {
       ball.dx = -Math.abs(ball.dx) * 1.05; ball.dy += (ball.y - (p2.y + PAD_H/2)) * 0.1;
     }
-    if (ball.x < 0) { score2++; updateUI(); checkWin(); resetBall(); return; }
-    if (ball.x > W) { score1++; updateUI(); checkWin(); resetBall(); return; }
+    if (ball.x < 0) { score2++; updateUI(); checkWin(); if (!gameOver) resetBall(); return; }
+    if (ball.x > W) { score1++; updateUI(); checkWin(); if (!gameOver) resetBall(); return; }
     draw(); animId = requestAnimationFrame(loop);
   }
   function resetBall() {
@@ -5461,7 +5461,9 @@ function renderPong(c) {
     if (started && !gameOver) draw();
   }
   function startGame() {
-    if (!started || gameOver) { init(); started = true; loop(); }
+    init(); started = true; gameOver = false;
+    cancelAnimationFrame(animId);
+    loop();
   }
   canvas.addEventListener('mousemove', function(e) { movePaddle(e.clientY); });
   canvas.addEventListener('click', function() { startGame(); });
