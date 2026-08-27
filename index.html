@@ -3647,7 +3647,7 @@ function renderSnake(c) {
     <div style="display:flex;justify-content:center">
       <canvas id="snakeCanvas" width="${W}" height="${H}" style="border-radius:12px;border:2px solid rgba(74,222,128,.3);background:#0a0a0a;box-shadow:0 0 30px rgba(74,222,128,.15);width:${W}px;height:${H}px;max-width:calc(100vw - 80px);max-height:calc(100vw - 80px)"></canvas>
     </div>
-    <div class="snake-controls" style="display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(2,52px);gap:4px;justify-content:center;margin:12px auto">
+    <div class="snake-controls" style="display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(2,52px);gap:4px;justify-content:center;margin:12px auto;direction:ltr">
       <div></div><button class="snake-btn" data-dir="up" style="font-size:1.2rem;border-radius:12px;background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.3);color:#4ade80">▲</button><div></div>
       <button class="snake-btn" data-dir="left" style="font-size:1.2rem;border-radius:12px;background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.3);color:#4ade80">◀</button>
       <button class="snake-btn" data-dir="down" style="font-size:1.2rem;border-radius:12px;background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.3);color:#4ade80">▼</button>
@@ -3815,7 +3815,6 @@ function renderSnake(c) {
   c.querySelectorAll('.snake-btn').forEach(function(b) {
     b.onclick = function() {
       var d = b.dataset.dir;
-      if (isRTL()) { if (d === 'left') d = 'right'; else if (d === 'right') d = 'left'; }
       if (d === 'up' && dir !== 'down') dir = 'up';
       if (d === 'down' && dir !== 'up') dir = 'down';
       if (d === 'left' && dir !== 'right') dir = 'left';
